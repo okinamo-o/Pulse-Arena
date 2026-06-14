@@ -42,12 +42,22 @@ export function LiveTicker() {
     el.style.animation = "none";
     // mark as running for debugging/visibility
     el.dataset.marquee = "running";
+    console.debug("LiveTicker.marquee:start", {
+      items: items.length,
+      scrollWidth: el.scrollWidth,
+      loopWidth
+    });
 
+    let lastLog = start;
     const step = (now: number) => {
       const elapsed = now - start;
       const progress = (elapsed % duration) / duration;
       const offset = progress * loopWidth;
       el.style.transform = `translateX(${-offset}px)`;
+      if (now - lastLog > 500) {
+        console.debug("LiveTicker.marquee:tick", { offset, progress, loopWidth });
+        lastLog = now;
+      }
       rafId = requestAnimationFrame(step);
     };
 
