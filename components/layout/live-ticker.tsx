@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { Radio } from "lucide-react";
 import { useLiveMatches } from "@/hooks/use-streamed";
@@ -10,12 +10,54 @@ export function LiveTicker() {
   const { data = [] } = useLiveMatches();
   const items = data.slice(0, 14);
 
+  const tickerRef = useRef<HTMLDivElement | null>(null);
+
   useEffect(() => {
     console.debug("LiveTicker: live matches", {
       count: data.length,
       sample: data.slice(0, 5).map((m) => ({ id: m.id, title: m.title }))
     });
   }, [data]);
+
+  // JS-controlled marquee so the ticker always scrolls, even when
+  // the user's `prefers-reduced-motion` is enabled.
+  useEffect(() => {
+    const el = tickerRef.current;
+    if (!el || items.length === 0) return;
+
+    let rafId: number | null = null;
+    let start = performance.now();
+    const duration = 30000; // one full loop in ms
+
+    const measure = () => Math.max(1, el.scrollWidth / 2);
+    let loopWidth = measure();
+
+    const onResize = () => {
+      loopWidth = measure();
+    };
+    window.addEventListener("resize", onResize);
+
+    const prevAnimation = el.style.animation;
+    // disable any CSS animation so JS controls motion consistently
+    el.style.animation = "none";
+
+    const step = (now: number) => {
+      const elapsed = now - start;
+      const progress = (elapsed % duration) / duration;
+      const offset = progress * loopWidth;
+      el.style.transform = `translateX(${-offset}px)`;
+      rafId = requestAnimationFrame(step);
+    };
+
+    rafId = requestAnimationFrame(step);
+
+    return () => {
+      if (rafId != null) cancelAnimationFrame(rafId);
+      window.removeEventListener("resize", onResize);
+      el.style.transform = "";
+      el.style.animation = prevAnimation ?? "";
+    };
+  }, [items]);
 
   if (items.length === 0) {
     return (
