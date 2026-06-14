@@ -46,6 +46,9 @@ export function LiveTicker() {
     el.style.animation = "none";
     // mark as running for debugging/visibility
     el.dataset.marquee = "running";
+    // visual indicator to help confirm JS is active
+    el.style.outline = "2px solid rgba(126,240,100,0.6)";
+    el.style.outlineOffset = "-2px";
     console.debug("LiveTicker.marquee:start", {
       items: items.length,
       scrollWidth: el.scrollWidth,
@@ -73,6 +76,8 @@ export function LiveTicker() {
       el.style.transform = "";
       el.style.animation = prevAnimation ?? "";
       el.dataset.marquee = "stopped";
+      el.style.outline = "";
+      el.style.outlineOffset = "";
     };
   }, [items]);
 
