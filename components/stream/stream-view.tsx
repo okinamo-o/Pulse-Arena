@@ -96,7 +96,6 @@ export function StreamView({ source, id, streams, match, related }: StreamViewPr
                   className="h-full w-full"
                   allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
                   allowFullScreen
-                  referrerPolicy="no-referrer"
                 />
               ) : (
                 <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
