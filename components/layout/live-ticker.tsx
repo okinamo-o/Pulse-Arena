@@ -40,6 +40,8 @@ export function LiveTicker() {
     const prevAnimation = el.style.animation;
     // disable any CSS animation so JS controls motion consistently
     el.style.animation = "none";
+    // mark as running for debugging/visibility
+    el.dataset.marquee = "running";
 
     const step = (now: number) => {
       const elapsed = now - start;
@@ -56,6 +58,7 @@ export function LiveTicker() {
       window.removeEventListener("resize", onResize);
       el.style.transform = "";
       el.style.animation = prevAnimation ?? "";
+      el.dataset.marquee = "stopped";
     };
   }, [items]);
 
