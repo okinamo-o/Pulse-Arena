@@ -23,7 +23,11 @@ export function LiveTicker() {
   // the user's `prefers-reduced-motion` is enabled.
   useEffect(() => {
     const el = tickerRef.current;
-    if (!el || items.length === 0) return;
+    console.debug("LiveTicker.marquee:effect-start", { elExists: !!el, items: items.length });
+    if (!el || items.length === 0) {
+      console.debug("LiveTicker.marquee:effect-abort", { elExists: !!el, items: items.length });
+      return;
+    }
 
     let rafId: number | null = null;
     let start = performance.now();
