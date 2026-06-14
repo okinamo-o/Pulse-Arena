@@ -22,34 +22,10 @@ export function StreamView({ source, id, streams, match, related }: StreamViewPr
   const [active, setActive] = React.useState(streams[0]);
   const activeStream = active ?? streams[0];
   const router = useRouter();
-  const [embedStatus, setEmbedStatus] = React.useState<"idle" | "loading" | "ok" | "failed">("idle");
-  const [retrySeed, setRetrySeed] = React.useState(0);
-  const loadTimeoutRef = React.useRef<number | undefined>(undefined);
 
   React.useEffect(() => {
     setActive(streams[0]);
   }, [streams]);
-
-  React.useEffect(() => {
-    setEmbedStatus(activeStream ? "loading" : "idle");
-    if (loadTimeoutRef.current) {
-      window.clearTimeout(loadTimeoutRef.current);
-      loadTimeoutRef.current = undefined;
-    }
-    if (activeStream) {
-      loadTimeoutRef.current = window.setTimeout(() => {
-        setEmbedStatus("failed");
-        // eslint-disable-next-line no-console
-        console.warn(`Embed timeout for ${activeStream.embedUrl}`);
-      }, 8000);
-    }
-    return () => {
-      if (loadTimeoutRef.current) {
-        window.clearTimeout(loadTimeoutRef.current);
-        loadTimeoutRef.current = undefined;
-      }
-    };
-  }, [activeStream, retrySeed]);
 
   React.useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -113,65 +89,15 @@ export function StreamView({ source, id, streams, match, related }: StreamViewPr
             </div>
             <div className="aspect-video bg-graphite-950">
               {activeStream ? (
-                <div className="relative h-full w-full">
-                  <iframe
-                    key={`${activeStream.embedUrl}-${retrySeed}`}
-                    src={activeStream.embedUrl}
-                    title={`${match?.title ?? "Live sports"} stream ${activeStream.streamNo}`}
-                    className="h-full w-full"
-                    allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-                    allowFullScreen
-                    onLoad={() => {
-                      if (loadTimeoutRef.current) {
-                        window.clearTimeout(loadTimeoutRef.current);
-                        loadTimeoutRef.current = undefined;
-                      }
-                      setEmbedStatus("ok");
-                    }}
-                    onError={() => {
-                      if (loadTimeoutRef.current) {
-                        window.clearTimeout(loadTimeoutRef.current);
-                        loadTimeoutRef.current = undefined;
-                      }
-                      // eslint-disable-next-line no-console
-                      console.error(`Embed load failed: ${activeStream.embedUrl}`);
-                      setEmbedStatus("failed");
-                    }}
-                  />
-
-                  {embedStatus === "loading" ? (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/60 text-white">
-                      <div className="h-10 w-10 animate-spin rounded-full border-4 border-white/20 border-t-white" aria-hidden="true" />
-                      <p className="font-bold">Loading stream...</p>
-                    </div>
-                  ) : null}
-
-                  {embedStatus === "failed" ? (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/80 text-center px-4">
-                      <Tv className="h-10 w-10 text-signal-lime" aria-hidden="true" />
-                      <p className="font-bold text-white">Stream unavailable</p>
-                      <p className="text-sm text-white/72">The embed failed to load or the stream is offline.</p>
-                      <div className="mt-3 flex gap-2">
-                        <Button
-                          variant="secondary"
-                          onClick={() => {
-                            setRetrySeed((s) => s + 1);
-                            setEmbedStatus("loading");
-                          }}
-                        >
-                          Retry
-                        </Button>
-                        {activeStream ? (
-                          <Button asChild variant="secondary">
-                            <a href={activeStream.embedUrl} target="_blank" rel="noopener noreferrer">
-                              Open embed
-                            </a>
-                          </Button>
-                        ) : null}
-                      </div>
-                    </div>
-                  ) : null}
-                </div>
+                <iframe
+                  key={activeStream.embedUrl}
+                  src={activeStream.embedUrl}
+                  title={`${match?.title ?? "Live sports"} stream ${activeStream.streamNo}`}
+                  className="h-full w-full"
+                  allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+                  allowFullScreen
+                  referrerPolicy="no-referrer"
+                />
               ) : (
                 <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
                   <Tv className="h-10 w-10 text-signal-lime" aria-hidden="true" />
