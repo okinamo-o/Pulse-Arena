@@ -74,7 +74,7 @@ export function LiveTicker() {
 
   return (
     <div className="fixed left-0 right-0 top-16 z-30 overflow-hidden border-b border-white/10 bg-graphite-900/72 backdrop-blur-xl">
-      <div className="flex h-9 w-max motion-safe:animate-ticker items-center gap-6 px-4 will-change-transform">
+      <div ref={tickerRef} className="flex h-9 w-max motion-safe:animate-ticker items-center gap-6 px-4 will-change-transform">
         {marquee.map((match, index) => (
           <Link
             key={`${match.id}-${index}`}
