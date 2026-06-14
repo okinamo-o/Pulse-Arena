@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Activity, Github, Twitter, Globe, Heart } from "lucide-react";
+import { Activity, Github, Facebook, Instagram, Heart } from "lucide-react";
 
 export function Footer() {
   return (
@@ -62,18 +62,18 @@ export function Footer() {
             <h3 className="text-xs font-bold uppercase tracking-wider text-white/38 mb-4">Connected</h3>
             <ul className="space-y-2.5 text-sm">
               <li>
-                <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-white/62 hover:text-signal-lime transition">
+                <a href="https://github.com/okinamo-o" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-white/62 hover:text-signal-lime transition">
                   <Github className="h-4 w-4" /> Github
                 </a>
               </li>
               <li>
-                <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-white/62 hover:text-signal-lime transition">
-                  <Twitter className="h-4 w-4" /> Twitter
+                <a href="https://www.facebook.com/louay.hamdi.52056" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-white/62 hover:text-signal-lime transition">
+                  <Facebook className="h-4 w-4" /> Facebook
                 </a>
               </li>
               <li>
-                <a href="#" className="inline-flex items-center gap-2 text-white/62 hover:text-signal-lime transition">
-                  <Globe className="h-4 w-4" /> Status
+                <a href="https://www.instagram.com/okinamo_o/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-white/62 hover:text-signal-lime transition">
+                  <Instagram className="h-4 w-4" /> Instagram
                 </a>
               </li>
             </ul>
