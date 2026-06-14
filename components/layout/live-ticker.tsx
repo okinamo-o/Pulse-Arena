@@ -30,7 +30,7 @@ export function LiveTicker() {
     }
 
     let rafId: number | null = null;
-    let start = performance.now();
+    const start = performance.now();
     const duration = 30000; // one full loop in ms
 
     const measure = () => Math.max(1, el.scrollWidth / 2);
