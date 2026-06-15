@@ -58,7 +58,7 @@ export function DateNavigator({ selectedDate, onSelectDate, matches }: DateNavig
   }, [selectedDate, isCustomDateSelected]);
 
   return (
-    <div className="sticky top-16 z-30 border-b border-white/10 bg-graphite-950/80 backdrop-blur-md">
+    <div className="sticky top-[6.25rem] z-30 border-b border-white/10 bg-graphite-950/80 backdrop-blur-md">
       <div className="container-page flex items-center justify-between py-3 gap-2">
         {/* Left Arrow */}
         <button
