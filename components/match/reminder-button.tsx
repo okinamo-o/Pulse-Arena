@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import { Bell, BellOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { StreamedMatch } from "@/lib/streamed/types";
@@ -10,21 +11,28 @@ export function ReminderButton({ match, compact = false }: { match: StreamedMatc
   const addReminder = useRemindersStore((state) => state.addReminder);
   const removeReminder = useRemindersStore((state) => state.removeReminder);
 
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const active = mounted ? hasReminder : false;
+
   return (
     <Button
       type="button"
-      variant={hasReminder ? "orange" : "secondary"}
+      variant={active ? "orange" : "secondary"}
       size={compact ? "icon" : "default"}
-      aria-pressed={hasReminder}
-      aria-label={hasReminder ? `Remove reminder for ${match.title}` : `Set reminder for ${match.title}`}
+      aria-pressed={active}
+      aria-label={active ? `Remove reminder for ${match.title}` : `Set reminder for ${match.title}`}
       onClick={(event) => {
         event.preventDefault();
-        if (hasReminder) removeReminder(match.id);
+        if (active) removeReminder(match.id);
         else addReminder({ matchId: match.id, title: match.title, date: match.date });
       }}
     >
-      {hasReminder ? <BellOff className="h-4 w-4" aria-hidden="true" /> : <Bell className="h-4 w-4" aria-hidden="true" />}
-      {compact ? null : hasReminder ? "Reminder on" : "Remind me"}
+      {active ? <BellOff className="h-4 w-4" aria-hidden="true" /> : <Bell className="h-4 w-4" aria-hidden="true" />}
+      {compact ? null : active ? "Reminder on" : "Remind me"}
     </Button>
   );
 }

@@ -32,7 +32,8 @@ export const streamedQueryKeys = {
 
 function useLocalStorageSeed<T>(
   storageKey: string,
-  queryKey: readonly unknown[]
+  queryKey: readonly unknown[],
+  validate?: (data: unknown) => boolean
 ) {
   const queryClient = useQueryClient();
   const seeded = useRef(false);
@@ -44,17 +45,25 @@ function useLocalStorageSeed<T>(
     try {
       const raw = localStorage.getItem(storageKey);
       if (raw) {
-        const parsed = JSON.parse(raw) as T;
-        // Only seed if the query cache is currently empty for this key
-        if (!queryClient.getQueryData(queryKey)) {
-          queryClient.setQueryData(queryKey, parsed);
+        const parsed = JSON.parse(raw);
+        if (parsed && (!validate || validate(parsed))) {
+          // Only seed if the query cache is currently empty for this key
+          if (!queryClient.getQueryData(queryKey)) {
+            queryClient.setQueryData(queryKey, parsed);
+          }
         }
       }
     } catch {
       // Corrupt localStorage entry — ignore
     }
-  }, [storageKey, queryKey, queryClient]);
+  }, [storageKey, queryKey, queryClient, validate]);
 }
+
+const validateSports = (data: unknown): boolean =>
+  Array.isArray(data) && (data.length === 0 || (typeof data[0] === "object" && data[0] !== null && "id" in data[0]));
+
+const validateMatches = (data: unknown): boolean =>
+  Array.isArray(data) && (data.length === 0 || (typeof data[0] === "object" && data[0] !== null && "id" in data[0] && "sources" in data[0]));
 
 function saveToLocalStorage<T>(key: string, data: T) {
   try {
@@ -69,7 +78,7 @@ function saveToLocalStorage<T>(key: string, data: T) {
 // ---------------------------------------------------------------------------
 
 export function useSports() {
-  useLocalStorageSeed("streamed_sports", streamedQueryKeys.sports);
+  useLocalStorageSeed("streamed_sports", streamedQueryKeys.sports, validateSports);
 
   return useQuery({
     queryKey: streamedQueryKeys.sports,
@@ -84,7 +93,7 @@ export function useSports() {
 }
 
 export function useAllMatches() {
-  useLocalStorageSeed("streamed_all_matches", streamedQueryKeys.allMatches);
+  useLocalStorageSeed("streamed_all_matches", streamedQueryKeys.allMatches, validateMatches);
 
   return useQuery({
     queryKey: streamedQueryKeys.allMatches,
@@ -99,7 +108,7 @@ export function useAllMatches() {
 }
 
 export function useLiveMatches() {
-  useLocalStorageSeed("streamed_live_matches", streamedQueryKeys.liveMatches);
+  useLocalStorageSeed("streamed_live_matches", streamedQueryKeys.liveMatches, validateMatches);
 
   return useQuery({
     queryKey: streamedQueryKeys.liveMatches,
@@ -114,7 +123,7 @@ export function useLiveMatches() {
 }
 
 export function useTodayMatches() {
-  useLocalStorageSeed("streamed_today_matches", streamedQueryKeys.todayMatches);
+  useLocalStorageSeed("streamed_today_matches", streamedQueryKeys.todayMatches, validateMatches);
 
   return useQuery({
     queryKey: streamedQueryKeys.todayMatches,

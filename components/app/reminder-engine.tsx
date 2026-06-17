@@ -10,12 +10,17 @@ export function ReminderEngine() {
   const reminders = useRemindersStore((state) => state.reminders);
   const dismissedIds = useRemindersStore((state) => state.dismissedIds);
   const dismissReminder = useRemindersStore((state) => state.dismissReminder);
-  const [now, setNow] = React.useState(Date.now());
+  const [now, setNow] = React.useState(0);
+  const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
+    setMounted(true);
+    setNow(Date.now());
     const timer = window.setInterval(() => setNow(Date.now()), 30000);
     return () => window.clearInterval(timer);
   }, []);
+
+  if (!mounted) return null;
 
   const due = reminders.find((reminder) => {
     const minutesUntil = (reminder.date - now) / 60000;
