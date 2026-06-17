@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { Radio } from "lucide-react";
 import { useLiveMatches } from "@/hooks/use-streamed";
