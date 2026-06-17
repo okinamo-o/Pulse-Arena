@@ -237,10 +237,48 @@ export function ScheduleView({ initialNow }: ScheduleViewProps) {
 
             {/* Render selected view */}
             {isLoading ? (
-              <div className="space-y-4">
-                {[...Array(5)].map((_, i) => (
-                  <div key={i} className="h-20 w-full rounded-xl bg-white/[0.03] animate-pulse" />
-                ))}
+              <div className="relative overflow-hidden rounded-xl border border-white/10 bg-graphite-900/60 p-12 text-center shadow-panel backdrop-blur-xl md:p-20">
+                {/* Neon glow effect */}
+                <div className="absolute -left-16 -top-16 h-32 w-32 rounded-full bg-signal-lime/10 blur-3xl" />
+                <div className="absolute -bottom-16 -right-16 h-32 w-32 rounded-full bg-signal-cyan/10 blur-3xl" />
+                
+                <div className="flex flex-col items-center justify-center space-y-6">
+                  {/* Radar/Sonar Pulse Animation */}
+                  <div className="relative flex h-16 w-16 items-center justify-center">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-signal-lime/30 opacity-75" />
+                    <span className="relative inline-flex h-8 w-8 rounded-full bg-signal-lime shadow-glow" />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-signal-lime/10 px-3 py-1 text-[0.68rem] font-bold tracking-widest text-signal-lime animate-pulse border border-signal-lime/20">
+                      <span className="h-1.5 w-1.5 rounded-full bg-signal-lime animate-ping" />
+                      CONNECTING SIGNAL PANEL
+                    </span>
+                    <h3 className="font-display text-sm font-black uppercase tracking-[0.25em] text-white">
+                      Scanning Arena Grid
+                    </h3>
+                  </div>
+
+                  {/* Mono diagnostics details */}
+                  <div className="w-full max-w-sm rounded-lg border border-white/5 bg-black/40 p-4 font-mono text-[0.68rem] text-white/50 space-y-1.5 text-left">
+                    <div className="flex items-center justify-between text-signal-cyan">
+                      <span>&gt; INITIALIZING AGENT DECK...</span>
+                      <span className="text-[0.62rem] font-bold">READY</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>&gt; CONNECTING SECURE PROXY: /api/streamed/matches/all</span>
+                      <span className="text-signal-lime font-bold animate-pulse">RUNNING</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>&gt; RETRIEVING 10-DAY SPORTS MATRIX...</span>
+                      <span className="text-white/30 font-bold">WAITING</span>
+                    </div>
+                    <div className="flex items-center justify-between border-t border-white/5 pt-1.5 text-[0.6rem] text-white/30 uppercase">
+                      <span>TIME STAMP</span>
+                      <span>{new Date(initialNow).toISOString()}</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             ) : viewMode === "timeline" ? (
               <ScheduleTimeline groups={hourGroups} now={now} />

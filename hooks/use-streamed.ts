@@ -25,7 +25,8 @@ export function useSports() {
   return useQuery({
     queryKey: streamedQueryKeys.sports,
     queryFn: getSports,
-    staleTime: 60 * 60 * 1000
+    staleTime: 60 * 60 * 1000, // 1 hour stale time
+    gcTime: 120 * 60 * 1000,   // 2 hours garbage collection time
   });
 }
 
@@ -33,8 +34,8 @@ export function useAllMatches() {
   return useQuery({
     queryKey: streamedQueryKeys.allMatches,
     queryFn: getAllMatches,
-    staleTime: 3 * 60 * 1000, // 3 min — schedule data doesn't change that fast
-    gcTime: 10 * 60 * 1000,   // Keep in cache for 10 min during tab switches
+    staleTime: 30 * 60 * 1000, // 30 minutes stale time (session cache)
+    gcTime: 60 * 60 * 1000,    // 1 hour garbage collection time
   });
 }
 
