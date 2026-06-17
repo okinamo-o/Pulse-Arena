@@ -1,17 +1,17 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
-import { ScheduleView } from "@/components/schedule/schedule-view";
-import Loading from "@/app/loading";
+import { getAllMatches, getSports } from "@/lib/streamed/client";
+import { ScheduleShell } from "@/components/schedule/schedule-shell";
 
 export const metadata: Metadata = {
   title: "Schedule",
   description: "Browse upcoming live sports events, matches, and broadcasts across all sports."
 };
 
-export default function SchedulePage() {
-  return (
-    <Suspense fallback={<Loading />}>
-      <ScheduleView />
-    </Suspense>
-  );
+export const revalidate = 60;
+
+export default async function SchedulePage() {
+  // Fetch data on the server so the page renders instantly with real content
+  const [sports, matches] = await Promise.all([getSports(), getAllMatches()]);
+
+  return <ScheduleShell initialSports={sports} initialMatches={matches} />;
 }

@@ -21,17 +21,14 @@ import { cn } from "@/lib/utils/cn";
 interface ScheduleCardProps {
   match: StreamedMatch;
   className?: string;
+  /** Shared timestamp from parent to avoid per-card timers */
+  now?: number;
 }
 
-export function ScheduleCard({ match, className }: ScheduleCardProps) {
+export function ScheduleCard({ match, className, now: externalNow }: ScheduleCardProps) {
   const [showCalendarMenu, setShowCalendarMenu] = React.useState(false);
-  const [now, setNow] = React.useState(Date.now());
+  const now = externalNow ?? Date.now();
   const menuRef = React.useRef<HTMLDivElement>(null);
-  
-  React.useEffect(() => {
-    const timer = window.setInterval(() => setNow(Date.now()), 30000);
-    return () => window.clearInterval(timer);
-  }, []);
 
   // Close calendar menu on click outside
   React.useEffect(() => {

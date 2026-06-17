@@ -33,7 +33,8 @@ export function useAllMatches() {
   return useQuery({
     queryKey: streamedQueryKeys.allMatches,
     queryFn: getAllMatches,
-    staleTime: 60 * 1000
+    staleTime: 3 * 60 * 1000, // 3 min — schedule data doesn't change that fast
+    gcTime: 10 * 60 * 1000,   // Keep in cache for 10 min during tab switches
   });
 }
 

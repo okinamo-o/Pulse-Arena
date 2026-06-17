@@ -15,6 +15,13 @@ export function ScheduleTimeline({ groups }: ScheduleTimelineProps) {
   const favoriteTeams = useFavoritesStore((state) => state.favoriteTeams);
   const favoriteMatchIds = useFavoritesStore((state) => state.favoriteMatchIds);
 
+  // Single shared timer for all cards — replaces per-card intervals
+  const [now, setNow] = React.useState(Date.now());
+  React.useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 30000);
+    return () => window.clearInterval(timer);
+  }, []);
+
   // Sorting matches to place favorites (teams or specific matches) first
   const getSortedMatches = React.useCallback(
     (matches: StreamedMatch[]) => {
@@ -114,7 +121,7 @@ export function ScheduleTimeline({ groups }: ScheduleTimelineProps) {
                     {/* Cards Stack */}
                     <div className="flex-1 space-y-3">
                       {sorted.map((match) => (
-                        <ScheduleCard key={match.id} match={match} />
+                        <ScheduleCard key={match.id} match={match} now={now} />
                       ))}
                     </div>
                   </div>

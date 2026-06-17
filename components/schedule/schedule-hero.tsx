@@ -11,34 +11,41 @@ interface ScheduleHeroProps {
 }
 
 export function ScheduleHero({ matches }: ScheduleHeroProps) {
-  const [now, setNow] = React.useState(Date.now());
+  // Slow tick (every 5s) for live/upcoming counts — no need for 1s precision here
+  const [slowNow, setSlowNow] = React.useState(Date.now());
+  // Fast tick (every 1s) only for the visual countdown string
+  const [fastNow, setFastNow] = React.useState(Date.now());
 
   React.useEffect(() => {
-    const timer = window.setInterval(() => setNow(Date.now()), 1000);
-    return () => window.clearInterval(timer);
+    const slow = window.setInterval(() => setSlowNow(Date.now()), 5000);
+    const fast = window.setInterval(() => setFastNow(Date.now()), 1000);
+    return () => {
+      window.clearInterval(slow);
+      window.clearInterval(fast);
+    };
   }, []);
 
-  // Compute counts
+  // Compute counts on the slow tick — avoids rerunning getMatchStatus on every match every second
   const liveCount = React.useMemo(() => {
-    return matches.filter((m) => getMatchStatus(m, now) === "live").length;
-  }, [matches, now]);
+    return matches.filter((m) => getMatchStatus(m, slowNow) === "live").length;
+  }, [matches, slowNow]);
 
   const upcomingCount = React.useMemo(() => {
-    return matches.filter((m) => getMatchStatus(m, now) === "upcoming").length;
-  }, [matches, now]);
+    return matches.filter((m) => getMatchStatus(m, slowNow) === "upcoming").length;
+  }, [matches, slowNow]);
 
-  // Find next kickoff match
+  // Find next kickoff match on the slow tick
   const nextMatch = React.useMemo(() => {
     const future = matches
-      .filter((m) => getMatchStatus(m, now) === "upcoming")
+      .filter((m) => getMatchStatus(m, slowNow) === "upcoming")
       .sort((a, b) => a.date - b.date);
     return future[0] || null;
-  }, [matches, now]);
+  }, [matches, slowNow]);
 
-  // Live countdown formatting
+  // Countdown uses the fast tick for smooth visual updates, but only formats a single number
   const countdownText = React.useMemo(() => {
     if (!nextMatch) return "No matches scheduled";
-    const diff = nextMatch.date - now;
+    const diff = nextMatch.date - fastNow;
     if (diff <= 0) return "Starting now...";
     
     const secs = Math.floor(diff / 1000);
@@ -54,7 +61,7 @@ export function ScheduleHero({ matches }: ScheduleHeroProps) {
       return `${days}d ${h}h ${m}m ${s}s`;
     }
     return `${h}:${m}:${s}`;
-  }, [nextMatch, now]);
+  }, [nextMatch, fastNow]);
 
   return (
     <section className="relative overflow-hidden border-b border-white/10 bg-graphite-950 pb-16 pt-32">

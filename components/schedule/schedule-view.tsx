@@ -37,9 +37,9 @@ export function ScheduleView() {
   const [searchQuery, setSearchQuery] = React.useState("");
   const [viewMode, setViewMode] = React.useState<"timeline" | "competition">("timeline");
 
-  // Keep 'now' updated
+  // Shared timer for status computations — 30s is plenty for schedule display
   React.useEffect(() => {
-    const timer = window.setInterval(() => setNow(Date.now()), 60000);
+    const timer = window.setInterval(() => setNow(Date.now()), 30000);
     return () => window.clearInterval(timer);
   }, []);
 
@@ -249,7 +249,7 @@ export function ScheduleView() {
                       </div>
                       <div className="space-y-3">
                         {group.matches.map((match) => (
-                          <ScheduleCard key={match.id} match={match} />
+                          <ScheduleCard key={match.id} match={match} now={now} />
                         ))}
                       </div>
                     </section>
