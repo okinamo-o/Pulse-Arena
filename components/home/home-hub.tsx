@@ -9,20 +9,24 @@ import { GlassPanel } from "@/components/ui/glass-panel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/motion/reveal";
-import type { StreamedMatch, StreamedSport } from "@/lib/streamed/types";
+import { useLiveMatches, useSports, useTodayMatches } from "@/hooks/use-streamed";
 import { formatSportName, sortByHeat } from "@/lib/streamed/selectors";
 
-interface HomeHubProps {
-  sports: StreamedSport[];
-  liveMatches: StreamedMatch[];
-  todayMatches: StreamedMatch[];
-}
+export function HomeHub() {
+  const { data: sports = [], isLoading: sportsLoading } = useSports();
+  const { data: liveMatches = [], isLoading: liveLoading } = useLiveMatches();
+  const { data: todayMatches = [], isLoading: todayLoading } = useTodayMatches();
 
-export function HomeHub({ sports, liveMatches, todayMatches }: HomeHubProps) {
+  const isLoading = sportsLoading && liveLoading && todayLoading;
+
   const featured = sortByHeat([...liveMatches, ...todayMatches])[0] ?? todayMatches[0];
   const trending = sortByHeat(liveMatches.length ? liveMatches : todayMatches).slice(0, 8);
   const popular = todayMatches.filter((match) => match.popular).slice(0, 8);
   const upcoming = [...todayMatches].sort((a, b) => a.date - b.date).slice(0, 10);
+
+  if (isLoading) {
+    return <HomeLoader />;
+  }
 
   return (
     <main className="pb-24 md:pb-16">
@@ -104,6 +108,32 @@ export function HomeHub({ sports, liveMatches, todayMatches }: HomeHubProps) {
           </Button>
         </GlassPanel>
       </section>
+    </main>
+  );
+}
+
+function HomeLoader() {
+  return (
+    <main className="min-h-screen pb-24 md:pb-16">
+      <div className="relative flex min-h-[52vh] items-center justify-center overflow-hidden bg-gradient-to-b from-graphite-900 to-graphite-950">
+        <div className="absolute -left-16 -top-16 h-48 w-48 rounded-full bg-signal-lime/10 blur-3xl" />
+        <div className="absolute -bottom-16 -right-16 h-48 w-48 rounded-full bg-signal-cyan/10 blur-3xl" />
+        <div className="flex flex-col items-center gap-6 text-center">
+          <div className="relative flex h-16 w-16 items-center justify-center">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-signal-lime/30 opacity-75" />
+            <span className="relative inline-flex h-8 w-8 rounded-full bg-signal-lime shadow-glow" />
+          </div>
+          <div className="space-y-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-signal-lime/10 px-3 py-1 text-[0.68rem] font-bold tracking-widest text-signal-lime animate-pulse border border-signal-lime/20">
+              <span className="h-1.5 w-1.5 rounded-full bg-signal-lime animate-ping" />
+              SCANNING LIVE FEEDS
+            </span>
+            <h3 className="font-display text-sm font-black uppercase tracking-[0.25em] text-white">
+              Loading Arena
+            </h3>
+          </div>
+        </div>
+      </div>
     </main>
   );
 }

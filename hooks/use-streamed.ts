@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import {
   getAllMatches,
   getLiveMatches,
@@ -22,87 +22,107 @@ export const streamedQueryKeys = {
   streams: (source: string, id: string) => ["streamed", "streams", source, id] as const
 };
 
-export function useSports() {
+// ---------------------------------------------------------------------------
+// localStorage seeding helper
+// ---------------------------------------------------------------------------
+// Reads from localStorage on first mount and seeds the query cache so the
+// page renders instantly with cached data. A background refetch is triggered
+// automatically because the data is set with an updatedAt of 0 (always stale).
+// ---------------------------------------------------------------------------
+
+function useLocalStorageSeed<T>(
+  storageKey: string,
+  queryKey: readonly unknown[]
+) {
   const queryClient = useQueryClient();
+  const seeded = useRef(false);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const cached = localStorage.getItem("streamed_sports");
-      if (cached) {
-        try {
-          const parsed = JSON.parse(cached);
-          if (!queryClient.getQueryData(streamedQueryKeys.sports)) {
-            queryClient.setQueryData(streamedQueryKeys.sports, parsed);
-            queryClient.invalidateQueries({ queryKey: streamedQueryKeys.sports });
-          }
-        } catch (e) {
-          console.error("Failed to parse cached sports", e);
+    if (seeded.current) return;
+    seeded.current = true;
+
+    try {
+      const raw = localStorage.getItem(storageKey);
+      if (raw) {
+        const parsed = JSON.parse(raw) as T;
+        // Only seed if the query cache is currently empty for this key
+        if (!queryClient.getQueryData(queryKey)) {
+          queryClient.setQueryData(queryKey, parsed);
         }
       }
+    } catch {
+      // Corrupt localStorage entry — ignore
     }
-  }, [queryClient]);
+  }, [storageKey, queryKey, queryClient]);
+}
+
+function saveToLocalStorage<T>(key: string, data: T) {
+  try {
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch {
+    // Storage full or unavailable — silently ignore
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Hooks
+// ---------------------------------------------------------------------------
+
+export function useSports() {
+  useLocalStorageSeed("streamed_sports", streamedQueryKeys.sports);
 
   return useQuery({
     queryKey: streamedQueryKeys.sports,
     queryFn: async () => {
       const data = await getSports();
-      if (typeof window !== "undefined") {
-        localStorage.setItem("streamed_sports", JSON.stringify(data));
-      }
+      saveToLocalStorage("streamed_sports", data);
       return data;
     },
-    staleTime: 60 * 60 * 1000, // 1 hour stale time
-    gcTime: 120 * 60 * 1000,   // 2 hours garbage collection time
+    staleTime: 60 * 60 * 1000, // 1 hour
+    gcTime: 120 * 60 * 1000,   // 2 hours
   });
 }
 
 export function useAllMatches() {
-  const queryClient = useQueryClient();
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const cached = localStorage.getItem("streamed_all_matches");
-      if (cached) {
-        try {
-          const parsed = JSON.parse(cached);
-          if (!queryClient.getQueryData(streamedQueryKeys.allMatches)) {
-            queryClient.setQueryData(streamedQueryKeys.allMatches, parsed);
-            queryClient.invalidateQueries({ queryKey: streamedQueryKeys.allMatches });
-          }
-        } catch (e) {
-          console.error("Failed to parse cached matches", e);
-        }
-      }
-    }
-  }, [queryClient]);
+  useLocalStorageSeed("streamed_all_matches", streamedQueryKeys.allMatches);
 
   return useQuery({
     queryKey: streamedQueryKeys.allMatches,
     queryFn: async () => {
       const data = await getAllMatches();
-      if (typeof window !== "undefined") {
-        localStorage.setItem("streamed_all_matches", JSON.stringify(data));
-      }
+      saveToLocalStorage("streamed_all_matches", data);
       return data;
     },
-    staleTime: 30 * 60 * 1000, // 30 minutes stale time (session cache)
-    gcTime: 60 * 60 * 1000,    // 1 hour garbage collection time
+    staleTime: 30 * 60 * 1000, // 30 minutes
+    gcTime: 60 * 60 * 1000,    // 1 hour
   });
 }
 
 export function useLiveMatches() {
+  useLocalStorageSeed("streamed_live_matches", streamedQueryKeys.liveMatches);
+
   return useQuery({
     queryKey: streamedQueryKeys.liveMatches,
-    queryFn: getLiveMatches,
+    queryFn: async () => {
+      const data = await getLiveMatches();
+      saveToLocalStorage("streamed_live_matches", data);
+      return data;
+    },
     staleTime: 15 * 1000,
     refetchInterval: 30 * 1000
   });
 }
 
 export function useTodayMatches() {
+  useLocalStorageSeed("streamed_today_matches", streamedQueryKeys.todayMatches);
+
   return useQuery({
     queryKey: streamedQueryKeys.todayMatches,
-    queryFn: getTodayMatches,
+    queryFn: async () => {
+      const data = await getTodayMatches();
+      saveToLocalStorage("streamed_today_matches", data);
+      return data;
+    },
     staleTime: 60 * 1000
   });
 }
