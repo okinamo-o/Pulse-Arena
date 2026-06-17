@@ -1,6 +1,7 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import {
   getAllMatches,
   getLiveMatches,
@@ -22,18 +23,68 @@ export const streamedQueryKeys = {
 };
 
 export function useSports() {
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const cached = localStorage.getItem("streamed_sports");
+      if (cached) {
+        try {
+          const parsed = JSON.parse(cached);
+          if (!queryClient.getQueryData(streamedQueryKeys.sports)) {
+            queryClient.setQueryData(streamedQueryKeys.sports, parsed);
+            queryClient.invalidateQueries({ queryKey: streamedQueryKeys.sports });
+          }
+        } catch (e) {
+          console.error("Failed to parse cached sports", e);
+        }
+      }
+    }
+  }, [queryClient]);
+
   return useQuery({
     queryKey: streamedQueryKeys.sports,
-    queryFn: getSports,
+    queryFn: async () => {
+      const data = await getSports();
+      if (typeof window !== "undefined") {
+        localStorage.setItem("streamed_sports", JSON.stringify(data));
+      }
+      return data;
+    },
     staleTime: 60 * 60 * 1000, // 1 hour stale time
     gcTime: 120 * 60 * 1000,   // 2 hours garbage collection time
   });
 }
 
 export function useAllMatches() {
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const cached = localStorage.getItem("streamed_all_matches");
+      if (cached) {
+        try {
+          const parsed = JSON.parse(cached);
+          if (!queryClient.getQueryData(streamedQueryKeys.allMatches)) {
+            queryClient.setQueryData(streamedQueryKeys.allMatches, parsed);
+            queryClient.invalidateQueries({ queryKey: streamedQueryKeys.allMatches });
+          }
+        } catch (e) {
+          console.error("Failed to parse cached matches", e);
+        }
+      }
+    }
+  }, [queryClient]);
+
   return useQuery({
     queryKey: streamedQueryKeys.allMatches,
-    queryFn: getAllMatches,
+    queryFn: async () => {
+      const data = await getAllMatches();
+      if (typeof window !== "undefined") {
+        localStorage.setItem("streamed_all_matches", JSON.stringify(data));
+      }
+      return data;
+    },
     staleTime: 30 * 60 * 1000, // 30 minutes stale time (session cache)
     gcTime: 60 * 60 * 1000,    // 1 hour garbage collection time
   });

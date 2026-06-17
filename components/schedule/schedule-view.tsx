@@ -36,7 +36,7 @@ export function ScheduleView({ initialNow }: ScheduleViewProps) {
 
   // Load sports and matches via react-query
   const { data: initialSports = [] } = useSports();
-  const { data: matches = [], isLoading } = useAllMatches();
+  const { data: matches = [], isLoading, isFetching } = useAllMatches();
 
   const [mounted, setMounted] = React.useState(false);
   const [now, setNow] = React.useState(initialNow);
@@ -184,9 +184,17 @@ export function ScheduleView({ initialNow }: ScheduleViewProps) {
 
       {/* Quick Jump & Timezone Indicator */}
       <div className="container-page mt-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-semibold text-white/40">
-        <div className="flex items-center gap-2">
-          <Globe className="h-3.5 w-3.5 text-signal-cyan animate-pulse" />
-          <span>Showing local times in {timeZoneName}</span>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <div className="flex items-center gap-2">
+            <Globe className="h-3.5 w-3.5 text-signal-cyan animate-pulse" />
+            <span>Showing local times in {timeZoneName}</span>
+          </div>
+          {isFetching && !isLoading && (
+            <div className="flex items-center gap-1.5 text-signal-lime animate-pulse font-mono font-bold">
+              <span className="h-1.5 w-1.5 rounded-full bg-signal-lime animate-ping" />
+              <span>[SYNCING LATEST SCHEDULE...]</span>
+            </div>
+          )}
         </div>
         
         {viewMode === "timeline" && (
