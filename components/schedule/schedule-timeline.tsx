@@ -9,18 +9,12 @@ import type { StreamedMatch } from "@/lib/streamed/types";
 
 interface ScheduleTimelineProps {
   groups: HourGroup[];
+  now: number;
 }
 
-export function ScheduleTimeline({ groups }: ScheduleTimelineProps) {
+export function ScheduleTimeline({ groups, now }: ScheduleTimelineProps) {
   const favoriteTeams = useFavoritesStore((state) => state.favoriteTeams);
   const favoriteMatchIds = useFavoritesStore((state) => state.favoriteMatchIds);
-
-  // Single shared timer for all cards — replaces per-card intervals
-  const [now, setNow] = React.useState(Date.now());
-  React.useEffect(() => {
-    const timer = window.setInterval(() => setNow(Date.now()), 30000);
-    return () => window.clearInterval(timer);
-  }, []);
 
   // Sorting matches to place favorites (teams or specific matches) first
   const getSortedMatches = React.useCallback(

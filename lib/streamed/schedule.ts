@@ -7,11 +7,11 @@ export function getUserTimeZone(): string {
 }
 
 // Convert a timestamp to local date string (YYYY-MM-DD)
-export function toLocalDateString(timestamp: number): string {
+export function toLocalDateString(timestamp: number, useUTC = false): string {
   const d = new Date(timestamp);
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
+  const year = useUTC ? d.getUTCFullYear() : d.getFullYear();
+  const month = String((useUTC ? d.getUTCMonth() : d.getMonth()) + 1).padStart(2, "0");
+  const day = String(useUTC ? d.getUTCDate() : d.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 }
 
@@ -23,26 +23,39 @@ export interface DateInfo {
   timestamp: number;
 }
 
-export function getDaysRange(count = 10): DateInfo[] {
+export function getDaysRange(count = 10, baseTimestamp = Date.now(), useUTC = false): DateInfo[] {
   const range: DateInfo[] = [];
-  const now = new Date();
+  const now = new Date(baseTimestamp);
   
   for (let i = 0; i < count; i++) {
     const d = new Date(now);
-    d.setDate(now.getDate() + i);
+    if (useUTC) {
+      d.setUTCDate(now.getUTCDate() + i);
+      // Normalize to start of day UTC
+      d.setUTCHours(0, 0, 0, 0);
+    } else {
+      d.setDate(now.getDate() + i);
+      // Normalize to start of day local time
+      d.setHours(0, 0, 0, 0);
+    }
     
-    // Normalize to start of day local time
-    d.setHours(0, 0, 0, 0);
-    const dateString = toLocalDateString(d.getTime());
+    const dateString = toLocalDateString(d.getTime(), useUTC);
     
     let dayName = "";
     if (i === 0) dayName = "Today";
     else if (i === 1) dayName = "Tomorrow";
     else {
-      dayName = new Intl.DateTimeFormat("en", { weekday: "short" }).format(d);
+      dayName = new Intl.DateTimeFormat("en", {
+        weekday: "short",
+        timeZone: useUTC ? "UTC" : undefined
+      }).format(d);
     }
     
-    const displayDate = new Intl.DateTimeFormat("en", { month: "short", day: "numeric" }).format(d);
+    const displayDate = new Intl.DateTimeFormat("en", {
+      month: "short",
+      day: "numeric",
+      timeZone: useUTC ? "UTC" : undefined
+    }).format(d);
     
     range.push({
       dateString,
@@ -69,8 +82,8 @@ export function getScheduleDensity(matchCount: number): { label: DensityLevel; t
 // Time Blocks for Quick Jump
 export type TimeBlock = "morning" | "afternoon" | "evening" | "night";
 
-export function getTimeBlock(timestamp: number): TimeBlock {
-  const hours = new Date(timestamp).getHours();
+export function getTimeBlock(timestamp: number, useUTC = false): TimeBlock {
+  const hours = useUTC ? new Date(timestamp).getUTCHours() : new Date(timestamp).getHours();
   if (hours >= 6 && hours < 12) return "morning";
   if (hours >= 12 && hours < 17) return "afternoon";
   if (hours >= 17 && hours < 21) return "evening";
@@ -147,14 +160,14 @@ export interface HourGroup {
   matches: StreamedMatch[];
 }
 
-export function groupMatchesByHour(matches: StreamedMatch[]): HourGroup[] {
+export function groupMatchesByHour(matches: StreamedMatch[], useUTC = false): HourGroup[] {
   const groupsMap: Record<string, StreamedMatch[]> = {};
   
   // Group
   matches.forEach((match) => {
     const d = new Date(match.date);
-    const hour = String(d.getHours()).padStart(2, "0");
-    const minute = String(Math.floor(d.getMinutes() / 15) * 15).padStart(2, "0"); // round to nearest 15 mins for cleaner hour blocks
+    const hour = String(useUTC ? d.getUTCHours() : d.getHours()).padStart(2, "0");
+    const minute = String(Math.floor((useUTC ? d.getUTCMinutes() : d.getMinutes()) / 15) * 15).padStart(2, "0"); // round to nearest 15 mins for cleaner hour blocks
     const hourString = `${hour}:${minute}`;
     
     if (!groupsMap[hourString]) {
@@ -169,9 +182,13 @@ export function groupMatchesByHour(matches: StreamedMatch[]): HourGroup[] {
     .map((hourString) => {
       const parts = hourString.split(":");
       const dummyDate = new Date();
-      dummyDate.setHours(parseInt(parts[0], 10), parseInt(parts[1], 10), 0, 0);
+      if (useUTC) {
+        dummyDate.setUTCHours(parseInt(parts[0], 10), parseInt(parts[1], 10), 0, 0);
+      } else {
+        dummyDate.setHours(parseInt(parts[0], 10), parseInt(parts[1], 10), 0, 0);
+      }
       
-      const timeBlock = getTimeBlock(dummyDate.getTime());
+      const timeBlock = getTimeBlock(dummyDate.getTime(), useUTC);
       
       return {
         hourString,

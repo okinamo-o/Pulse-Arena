@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
-import { getDaysRange, toLocalDateString, getScheduleDensity } from "@/lib/streamed/schedule";
+import { DateInfo, toLocalDateString, getScheduleDensity } from "@/lib/streamed/schedule";
 import type { StreamedMatch } from "@/lib/streamed/types";
 import { cn } from "@/lib/utils/cn";
 
@@ -10,21 +10,22 @@ interface DateNavigatorProps {
   selectedDate: string; // YYYY-MM-DD
   onSelectDate: (dateString: string) => void;
   matches: StreamedMatch[];
+  days: DateInfo[];
+  mounted: boolean;
 }
 
-export function DateNavigator({ selectedDate, onSelectDate, matches }: DateNavigatorProps) {
+export function DateNavigator({ selectedDate, onSelectDate, matches, days, mounted }: DateNavigatorProps) {
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
-  const days = React.useMemo(() => getDaysRange(10), []);
 
   // Compute counts for each day in our range
   const dayCounts = React.useMemo(() => {
     const counts: Record<string, number> = {};
     matches.forEach((match) => {
-      const matchDateStr = toLocalDateString(match.date);
+      const matchDateStr = toLocalDateString(match.date, !mounted);
       counts[matchDateStr] = (counts[matchDateStr] || 0) + 1;
     });
     return counts;
-  }, [matches]);
+  }, [matches, mounted]);
 
   // Handle custom date picker
   const handleCustomDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -51,11 +52,15 @@ export function DateNavigator({ selectedDate, onSelectDate, matches }: DateNavig
     try {
       const parts = selectedDate.split("-");
       const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
-      return new Intl.DateTimeFormat("en", { month: "short", day: "numeric" }).format(d);
+      return new Intl.DateTimeFormat("en", {
+        month: "short",
+        day: "numeric",
+        timeZone: !mounted ? "UTC" : undefined
+      }).format(d);
     } catch {
       return selectedDate;
     }
-  }, [selectedDate, isCustomDateSelected]);
+  }, [selectedDate, isCustomDateSelected, mounted]);
 
   return (
     <div className="sticky top-[6.25rem] z-30 border-b border-white/10 bg-graphite-950/80 backdrop-blur-md">

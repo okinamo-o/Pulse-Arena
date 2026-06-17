@@ -41,6 +41,11 @@ export function ScheduleCard({ match, className, now: externalNow }: ScheduleCar
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const participants = getMatchParticipants(match);
   const status = getMatchStatus(match, now);
   const firstSource = match.sources[0];
@@ -49,16 +54,18 @@ export function ScheduleCard({ match, className, now: externalNow }: ScheduleCar
     return new Intl.DateTimeFormat("en", {
       hour: "2-digit",
       minute: "2-digit",
-      hour12: false
+      hour12: false,
+      timeZone: mounted ? undefined : "UTC"
     }).format(match.date);
-  }, [match.date]);
+  }, [match.date, mounted]);
 
   const localDate = React.useMemo(() => {
     return new Intl.DateTimeFormat("en", {
       month: "short",
-      day: "numeric"
+      day: "numeric",
+      timeZone: mounted ? undefined : "UTC"
     }).format(match.date);
-  }, [match.date]);
+  }, [match.date, mounted]);
 
   return (
     <motion.article
@@ -81,8 +88,8 @@ export function ScheduleCard({ match, className, now: externalNow }: ScheduleCar
         {/* Left Side: Time and Metadata */}
         <div className="flex items-center gap-3 shrink-0">
           <div className="flex flex-col">
-            <span className="font-mono text-xl font-black text-white">{localTime}</span>
-            <span className="text-[0.68rem] font-bold uppercase tracking-wider text-white/45">
+            <span suppressHydrationWarning className="font-mono text-xl font-black text-white">{localTime}</span>
+            <span suppressHydrationWarning className="text-[0.68rem] font-bold uppercase tracking-wider text-white/45">
               {localDate}
             </span>
           </div>

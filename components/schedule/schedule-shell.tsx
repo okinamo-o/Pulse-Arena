@@ -9,6 +9,7 @@ import type { StreamedMatch, StreamedSport } from "@/lib/streamed/types";
 interface ScheduleShellProps {
   initialSports: StreamedSport[];
   initialMatches: StreamedMatch[];
+  initialNow: number;
 }
 
 /**
@@ -16,7 +17,7 @@ interface ScheduleShellProps {
  * Seeds the react-query cache with server data so the view renders
  * instantly instead of showing a loading skeleton.
  */
-export function ScheduleShell({ initialSports, initialMatches }: ScheduleShellProps) {
+export function ScheduleShell({ initialSports, initialMatches, initialNow }: ScheduleShellProps) {
   const queryClient = useQueryClient();
 
   // Seed the query cache ONCE on mount with the server-provided data.
@@ -29,5 +30,5 @@ export function ScheduleShell({ initialSports, initialMatches }: ScheduleShellPr
     seeded.current = true;
   }
 
-  return <ScheduleView />;
+  return <ScheduleView initialNow={initialNow} />;
 }

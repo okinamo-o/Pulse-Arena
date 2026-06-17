@@ -18,13 +18,18 @@ import {
   groupMatchesByHour,
   getUserTimeZone,
   getTimeBlock,
+  getDaysRange,
   type TimeBlock
 } from "@/lib/streamed/schedule";
 import { formatSportName, getMatchStatus } from "@/lib/streamed/selectors";
 import type { StreamedMatch } from "@/lib/streamed/types";
 import { cn } from "@/lib/utils/cn";
 
-export function ScheduleView() {
+interface ScheduleViewProps {
+  initialNow: number;
+}
+
+export function ScheduleView({ initialNow }: ScheduleViewProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -33,20 +38,23 @@ export function ScheduleView() {
   const { data: initialSports = [] } = useSports();
   const { data: matches = [], isLoading } = useAllMatches();
 
-  const [now, setNow] = React.useState(Date.now());
+  const [mounted, setMounted] = React.useState(false);
+  const [now, setNow] = React.useState(initialNow);
   const [searchQuery, setSearchQuery] = React.useState("");
   const [viewMode, setViewMode] = React.useState<"timeline" | "competition">("timeline");
 
-  // Shared timer for status computations — 30s is plenty for schedule display
+  // Central timer & mounting check
   React.useEffect(() => {
+    setMounted(true);
+    setNow(Date.now());
     const timer = window.setInterval(() => setNow(Date.now()), 30000);
     return () => window.clearInterval(timer);
   }, []);
 
   // Deep linking sync for Date
   const selectedDate = React.useMemo(() => {
-    return searchParams.get("date") || toLocalDateString(Date.now());
-  }, [searchParams]);
+    return searchParams.get("date") || toLocalDateString(now, !mounted);
+  }, [searchParams, now, mounted]);
 
   // Deep linking sync for Sports filters
   const selectedSports = React.useMemo(() => {
@@ -83,13 +91,21 @@ export function ScheduleView() {
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
-  // Get user timezone details
-  const timeZoneName = React.useMemo(() => getUserTimeZone(), []);
+  // Generate days navigator dynamically & hydration-safely
+  const days = React.useMemo(() => {
+    return getDaysRange(10, initialNow, !mounted);
+  }, [initialNow, mounted]);
 
-  // Filter 1: Matches occurring on the selected date (local time)
+  // Get user timezone details safely
+  const timeZoneName = React.useMemo(() => {
+    if (!mounted) return "UTC";
+    return getUserTimeZone();
+  }, [mounted]);
+
+  // Filter 1: Matches occurring on the selected date (local/UTC time)
   const matchesForSelectedDate = React.useMemo(() => {
-    return matches.filter((match) => toLocalDateString(match.date) === selectedDate);
-  }, [matches, selectedDate]);
+    return matches.filter((match) => toLocalDateString(match.date, !mounted) === selectedDate);
+  }, [matches, selectedDate, mounted]);
 
   // Filter 2: Matches filtered by active sport category filters and search text input
   const filteredMatches = React.useMemo(() => {
@@ -112,8 +128,8 @@ export function ScheduleView() {
 
   // Grouped results for Timeline view
   const hourGroups = React.useMemo(() => {
-    return groupMatchesByHour(filteredMatches);
-  }, [filteredMatches]);
+    return groupMatchesByHour(filteredMatches, !mounted);
+  }, [filteredMatches, mounted]);
 
   // Grouped results by Category/Competition for Competition view
   const competitionGroups = React.useMemo(() => {
@@ -141,10 +157,10 @@ export function ScheduleView() {
   const activeBlocks = React.useMemo(() => {
     const blocksSet = new Set<string>();
     filteredMatches.forEach((m) => {
-      blocksSet.add(getTimeBlock(m.date));
+      blocksSet.add(getTimeBlock(m.date, !mounted));
     });
     return Array.from(blocksSet) as TimeBlock[];
-  }, [filteredMatches]);
+  }, [filteredMatches, mounted]);
 
   return (
     <div className="min-h-screen pb-20 bg-graphite-950">
@@ -154,6 +170,8 @@ export function ScheduleView() {
         selectedDate={selectedDate}
         onSelectDate={handleSelectDate}
         matches={matches}
+        days={days}
+        mounted={mounted}
       />
 
       <SportFilterBar
@@ -225,7 +243,7 @@ export function ScheduleView() {
                 ))}
               </div>
             ) : viewMode === "timeline" ? (
-              <ScheduleTimeline groups={hourGroups} />
+              <ScheduleTimeline groups={hourGroups} now={now} />
             ) : (
               <div className="space-y-8">
                 {competitionGroups.length === 0 ? (
@@ -279,11 +297,13 @@ export function ScheduleView() {
                     const localTime = new Intl.DateTimeFormat("en", {
                       hour: "2-digit",
                       minute: "2-digit",
-                      hour12: false
+                      hour12: false,
+                      timeZone: mounted ? undefined : "UTC"
                     }).format(match.date);
                     const localDate = new Intl.DateTimeFormat("en", {
                       month: "short",
-                      day: "numeric"
+                      day: "numeric",
+                      timeZone: mounted ? undefined : "UTC"
                     }).format(match.date);
 
                     return (
@@ -296,7 +316,7 @@ export function ScheduleView() {
                           <span className="text-[0.62rem] font-black uppercase tracking-wider text-signal-cyan">
                             {formatSportName(match.category)}
                           </span>
-                          <span className="font-mono text-[0.68rem] font-bold text-white/40">
+                          <span suppressHydrationWarning className="font-mono text-[0.68rem] font-bold text-white/40">
                             {localDate} {localTime}
                           </span>
                         </div>
