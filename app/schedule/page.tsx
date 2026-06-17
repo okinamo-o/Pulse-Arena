@@ -1,6 +1,8 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { getAllMatches, getSports } from "@/lib/streamed/client";
 import { ScheduleShell } from "@/components/schedule/schedule-shell";
+import Loading from "@/app/loading";
 
 export const metadata: Metadata = {
   title: "Schedule",
@@ -9,10 +11,18 @@ export const metadata: Metadata = {
 
 export const revalidate = 60;
 
-export default async function SchedulePage() {
-  // Fetch data on the server so the page renders instantly with real content
+// Resolve the promises inside a suspended server sub-component
+async function ScheduleViewFetcher({ initialNow }: { initialNow: number }) {
   const [sports, matches] = await Promise.all([getSports(), getAllMatches()]);
+  return <ScheduleShell initialSports={sports} initialMatches={matches} initialNow={initialNow} />;
+}
+
+export default function SchedulePage() {
   const initialNow = Date.now();
 
-  return <ScheduleShell initialSports={sports} initialMatches={matches} initialNow={initialNow} />;
+  return (
+    <Suspense fallback={<Loading />}>
+      <ScheduleViewFetcher initialNow={initialNow} />
+    </Suspense>
+  );
 }
