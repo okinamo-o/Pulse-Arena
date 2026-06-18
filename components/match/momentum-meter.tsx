@@ -17,7 +17,7 @@ export function MomentumMeter({ match, compact = false }: { match: StreamedMatch
           <Zap className="h-4 w-4 text-signal-orange" aria-hidden="true" />
           Momentum
         </div>
-        <span className="font-mono text-sm font-bold text-signal-orange">{score}</span>
+        <span className="font-mono text-sm font-bold text-signal-orange" suppressHydrationWarning>{score}</span>
       </div>
       <div className="h-2 overflow-hidden rounded-full bg-white/[0.08]">
         <motion.div
@@ -30,7 +30,7 @@ export function MomentumMeter({ match, compact = false }: { match: StreamedMatch
       </div>
       <div className="mt-2 flex items-center justify-between text-[0.68rem] font-bold uppercase tracking-[0.16em] text-white/42">
         <span>Signal</span>
-        <span className="text-white/68">{label}</span>
+        <span className="text-white/68" suppressHydrationWarning>{label}</span>
       </div>
     </div>
   );
