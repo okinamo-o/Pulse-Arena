@@ -31,7 +31,7 @@ export function StreamTelemetrySidebar({ match }: { match?: StreamedMatch }) {
   if (!match) return null;
 
   return (
-    <GlassPanel className="p-4 flex flex-col h-full bg-graphite-950/80">
+    <GlassPanel className="p-4 flex flex-col h-fit bg-graphite-950/80">
       <div className="flex items-center gap-2 border-b border-white/10 pb-3 mb-4 text-signal-lime">
         <Activity className="h-4 w-4" />
         <h3 className="font-display text-[0.8rem] font-black uppercase tracking-widest text-white">Live Telemetry</h3>
@@ -62,7 +62,7 @@ export function StreamTelemetrySidebar({ match }: { match?: StreamedMatch }) {
       </div>
 
       {data?.stats ? (
-        <div className="flex flex-col gap-3 mt-auto">
+        <div className="flex flex-col gap-3 mt-4">
           <StatBar label="Possession" home={data.stats.possession.home} away={data.stats.possession.away} suffix="%" />
           <StatBar label="Shots on Target" home={data.stats.shotsOnTarget.home} away={data.stats.shotsOnTarget.away} />
           <StatBar label="Shots off Target" home={data.stats.shotsOffTarget.home} away={data.stats.shotsOffTarget.away} />
@@ -71,7 +71,7 @@ export function StreamTelemetrySidebar({ match }: { match?: StreamedMatch }) {
           <StatBar label="Red Cards" home={data.stats.redCards.home} away={data.stats.redCards.away} />
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center py-6 text-center mt-auto border-t border-white/5">
+        <div className="flex flex-col items-center justify-center py-6 text-center mt-4 border-t border-white/5">
           <Activity className="h-6 w-6 text-white/10 mb-2 animate-pulse" />
           <p className="text-[0.65rem] text-white/40 uppercase tracking-wider font-bold">Awaiting Data</p>
         </div>

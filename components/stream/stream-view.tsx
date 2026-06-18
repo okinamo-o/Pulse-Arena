@@ -69,7 +69,7 @@ export function StreamView({ id, streams, match, related }: StreamViewProps) {
     <main className="container-page pb-24 pt-32 md:pb-16">
       <div className={match ? "grid gap-6 lg:grid-cols-[1fr_320px] xl:grid-cols-[300px_1fr_360px]" : "grid gap-6 xl:grid-cols-[1fr_360px]"}>
         {match ? (
-          <aside className="hidden xl:block h-full">
+          <aside className="hidden xl:block sticky top-32 h-fit">
             <StreamTelemetrySidebar match={match} />
           </aside>
         ) : null}
