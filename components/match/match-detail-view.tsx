@@ -8,12 +8,12 @@ import { GlassPanel } from "@/components/ui/glass-panel";
 import { SectionHeader } from "@/components/ui/section-header";
 import { CountdownChip } from "@/components/match/countdown-chip";
 import { FavoriteButton } from "@/components/match/favorite-button";
-import { MatchRadar } from "@/components/match/match-radar";
 import { MomentumMeter } from "@/components/match/momentum-meter";
 import { ReminderButton } from "@/components/match/reminder-button";
-import { StreamSourceGrid } from "@/components/match/stream-source-grid";
 import { TeamBadge } from "@/components/match/team-badge";
 import { MatchCard } from "@/components/match/match-card";
+import { LiveScoreboard } from "@/components/match/live-scoreboard";
+import { MatchAnalyticsTabs } from "@/components/match/match-analytics-tabs";
 import { buildMatchInsights, formatSportName, getMatchParticipants } from "@/lib/streamed/selectors";
 import type { StreamedMatch } from "@/lib/streamed/types";
 
@@ -84,12 +84,18 @@ export function MatchDetailView({ match, related }: MatchDetailViewProps) {
         </GlassPanel>
       </section>
 
-      <section className="container-page mt-8 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-        <MatchRadar match={match} />
-        <div>
-          <SectionHeader eyebrow="Available streams" title="Choose your source" />
-          <StreamSourceGrid match={match} />
-        </div>
+      <section className="container-page mt-8">
+        <LiveScoreboard 
+          homeTeam={participants.home} 
+          awayTeam={participants.away} 
+          homeBadge={match.teams?.home?.badge}
+          awayBadge={match.teams?.away?.badge}
+          matchDate={match.date} 
+        />
+      </section>
+
+      <section className="container-page mt-8">
+        <MatchAnalyticsTabs homeTeam={participants.home} awayTeam={participants.away} />
       </section>
 
       {related.length > 0 ? (

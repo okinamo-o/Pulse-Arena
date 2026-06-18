@@ -3,10 +3,9 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ExternalLink, Maximize, Radio, Rows3, Tv } from "lucide-react";
+import { Maximize, Radio, Tv } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { GlassPanel } from "@/components/ui/glass-panel";
 import { MatchCard } from "@/components/match/match-card";
 import type { StreamedMatch, StreamedStream } from "@/lib/streamed/types";
 
@@ -18,7 +17,7 @@ interface StreamViewProps {
   related: StreamedMatch[];
 }
 
-export function StreamView({ source, id, streams, match, related }: StreamViewProps) {
+export function StreamView({ id, streams, match, related }: StreamViewProps) {
   const [active, setActive] = React.useState(streams[0]);
   const activeStream = active ?? streams[0];
   const router = useRouter();
@@ -95,6 +94,7 @@ export function StreamView({ source, id, streams, match, related }: StreamViewPr
                   title={`${match?.title ?? "Live sports"} stream ${activeStream.streamNo}`}
                   className="h-full w-full"
                   allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+                  sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
                   allowFullScreen
                   referrerPolicy="no-referrer"
                 />
@@ -146,29 +146,8 @@ export function StreamView({ source, id, streams, match, related }: StreamViewPr
         </section>
 
         <aside className="space-y-4">
-          <GlassPanel className="p-4">
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-signal-lime">
-              <Rows3 className="h-4 w-4" aria-hidden="true" />
-              Keyboard
-            </div>
-            <div className="mt-4 grid gap-2 text-sm text-white/58">
-              <Shortcut keyName="F" label="Fullscreen" />
-              <Shortcut keyName="1-9" label="Switch source" />
-              <Shortcut keyName="/" label="Search" />
-            </div>
-          </GlassPanel>
-          <GlassPanel className="p-4">
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/42">Source identity</p>
-            <h2 className="mt-2 break-all font-mono text-sm font-bold text-white">{source}/{id}</h2>
-            {activeStream ? (
-              <Button asChild variant="secondary" className="mt-4 w-full">
-                <a href={activeStream.embedUrl} target="_blank" rel="noreferrer">
-                  Open embed
-                  <ExternalLink className="h-4 w-4" aria-hidden="true" />
-                </a>
-              </Button>
-            ) : null}
-          </GlassPanel>
+
+
           {match ? (
             <Button asChild className="w-full">
               <Link href={`/match/${match.id}`}>Match center</Link>
@@ -191,11 +170,3 @@ export function StreamView({ source, id, streams, match, related }: StreamViewPr
   );
 }
 
-function Shortcut({ keyName, label }: { keyName: string; label: string }) {
-  return (
-    <div className="flex items-center justify-between rounded-lg border border-white/10 bg-black/20 px-3 py-2">
-      <span>{label}</span>
-      <kbd className="rounded border border-white/10 bg-white/[0.08] px-2 py-1 font-mono text-xs text-white">{keyName}</kbd>
-    </div>
-  );
-}
