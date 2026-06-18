@@ -17,7 +17,8 @@ export async function GET(request: Request) {
 
   try {
     // 1. Find the Match ID from ESPN Scoreboard
-    const scoreboardUrl = 'https://site.api.espn.com/apis/site/v2/sports/soccer/all/scoreboard';
+    const t = Math.floor(Date.now() / 5000);
+    const scoreboardUrl = `https://site.api.espn.com/apis/site/v2/sports/soccer/all/scoreboard?_=${t}`;
     const scoreboardRes = await fetch(scoreboardUrl, { next: { revalidate: 5 } });
     if (!scoreboardRes.ok) throw new Error("Failed to fetch ESPN Scoreboard");
     const scoreboardData = await scoreboardRes.json();
@@ -42,7 +43,7 @@ export async function GET(request: Request) {
     const gameId = targetEvent.id;
 
     // 2. Fetch the Match Summary
-    const summaryUrl = `https://site.api.espn.com/apis/site/v2/sports/soccer/all/summary?event=${gameId}`;
+    const summaryUrl = `https://site.api.espn.com/apis/site/v2/sports/soccer/all/summary?event=${gameId}&_=${t}`;
     const summaryRes = await fetch(summaryUrl, { next: { revalidate: 5 } });
     if (!summaryRes.ok) throw new Error("Failed to fetch ESPN Summary");
     const summaryData = await summaryRes.json();
