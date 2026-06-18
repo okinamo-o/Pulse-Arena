@@ -5,12 +5,14 @@ import { MatchCard } from "@/components/match/match-card";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Badge } from "@/components/ui/badge";
 import { ErrorState } from "@/components/system/error-state";
-import { useLiveMatches, useSports } from "@/hooks/use-streamed";
-import { formatSportName, sortByHeat } from "@/lib/streamed/selectors";
+import { useSports, useTodayMatches } from "@/hooks/use-streamed";
+import { formatSportName, getMatchStatus, sortByHeat } from "@/lib/streamed/selectors";
 
 export function LiveDashboard() {
-  const { data: matches = [], isLoading: matchesLoading, isError: matchesError, refetch: refetchMatches } = useLiveMatches();
+  const { data: allMatches = [], isLoading: matchesLoading, isError: matchesError, refetch: refetchMatches } = useTodayMatches();
   const { data: sports = [], isLoading: sportsLoading, isError: sportsError, refetch: refetchSports } = useSports();
+  
+  const matches = allMatches.filter((m) => getMatchStatus(m) === "live");
 
   const isLoading = matchesLoading && sportsLoading;
   const isError = (matchesError || sportsError) && (!matches.length && !sports.length);

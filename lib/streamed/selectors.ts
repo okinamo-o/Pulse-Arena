@@ -1,6 +1,6 @@
 import type { MatchInsight, MatchStatus, NormalizedMatch, StreamedMatch, StreamedStream } from "@/lib/streamed/types";
 
-const LIVE_WINDOW_MS = 3 * 60 * 60 * 1000;
+const LIVE_WINDOW_MS = 135 * 60 * 1000;
 const RECENT_WINDOW_MS = 90 * 60 * 1000;
 
 export function getMatchStatus(match: StreamedMatch, now = Date.now()): MatchStatus {
