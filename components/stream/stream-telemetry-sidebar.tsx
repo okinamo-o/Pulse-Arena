@@ -22,7 +22,7 @@ export function StreamTelemetrySidebar({ match }: { match?: StreamedMatch }) {
       return res.json();
     },
     enabled: Boolean(homeTeam && awayTeam),
-    refetchInterval: 10000,
+    refetchInterval: 5000,
   });
 
   const displayScore = data?.score ? `${data.score.home} - ${data.score.away}` : "0 - 0";
