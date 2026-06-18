@@ -4,13 +4,20 @@ import Link from "next/link";
 import { ArrowUpRight, Trophy } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { GlassPanel } from "@/components/ui/glass-panel";
+import { ErrorState } from "@/components/system/error-state";
 import { useSports, useTodayMatches } from "@/hooks/use-streamed";
 
 export function SportsDirectory() {
-  const { data: sports = [], isLoading: sportsLoading } = useSports();
-  const { data: matches = [], isLoading: matchesLoading } = useTodayMatches();
+  const { data: sports = [], isLoading: sportsLoading, isError: sportsError, refetch: refetchSports } = useSports();
+  const { data: matches = [], isLoading: matchesLoading, isError: matchesError, refetch: refetchMatches } = useTodayMatches();
 
   const isLoading = sportsLoading && matchesLoading;
+  const isError = (sportsError || matchesError) && (!sports.length && !matches.length);
+
+  const handleRetry = () => {
+    if (sportsError) refetchSports();
+    if (matchesError) refetchMatches();
+  };
 
   if (isLoading) {
     return (
@@ -34,6 +41,17 @@ export function SportsDirectory() {
             </div>
           </div>
         </div>
+      </main>
+    );
+  }
+
+  if (isError) {
+    return (
+      <main className="container-page min-h-[70vh] pb-24 pt-32 md:pb-16 flex items-center justify-center">
+        <ErrorState 
+          message="Failed to index the sports categories. The upstream provider might be unavailable." 
+          retry={handleRetry} 
+        />
       </main>
     );
   }

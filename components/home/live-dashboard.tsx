@@ -4,14 +4,21 @@ import { Radio } from "lucide-react";
 import { MatchCard } from "@/components/match/match-card";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Badge } from "@/components/ui/badge";
+import { ErrorState } from "@/components/system/error-state";
 import { useLiveMatches, useSports } from "@/hooks/use-streamed";
 import { formatSportName, sortByHeat } from "@/lib/streamed/selectors";
 
 export function LiveDashboard() {
-  const { data: matches = [], isLoading: matchesLoading } = useLiveMatches();
-  const { data: sports = [], isLoading: sportsLoading } = useSports();
+  const { data: matches = [], isLoading: matchesLoading, isError: matchesError, refetch: refetchMatches } = useLiveMatches();
+  const { data: sports = [], isLoading: sportsLoading, isError: sportsError, refetch: refetchSports } = useSports();
 
   const isLoading = matchesLoading && sportsLoading;
+  const isError = (matchesError || sportsError) && (!matches.length && !sports.length);
+
+  const handleRetry = () => {
+    if (matchesError) refetchMatches();
+    if (sportsError) refetchSports();
+  };
   const sorted = sortByHeat(matches);
 
   if (isLoading) {
@@ -36,6 +43,17 @@ export function LiveDashboard() {
             </div>
           </div>
         </div>
+      </main>
+    );
+  }
+
+  if (isError) {
+    return (
+      <main className="container-page min-h-[70vh] pb-24 pt-32 md:pb-16 flex items-center justify-center">
+        <ErrorState 
+          message="Failed to synchronize with the live control room. The upstream provider might be unavailable." 
+          retry={handleRetry} 
+        />
       </main>
     );
   }

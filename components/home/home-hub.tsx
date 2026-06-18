@@ -9,15 +9,23 @@ import { GlassPanel } from "@/components/ui/glass-panel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/motion/reveal";
+import { ErrorState } from "@/components/system/error-state";
 import { useLiveMatches, useSports, useTodayMatches } from "@/hooks/use-streamed";
 import { formatSportName, sortByHeat } from "@/lib/streamed/selectors";
 
 export function HomeHub() {
-  const { data: sports = [], isLoading: sportsLoading } = useSports();
-  const { data: liveMatches = [], isLoading: liveLoading } = useLiveMatches();
-  const { data: todayMatches = [], isLoading: todayLoading } = useTodayMatches();
+  const { data: sports = [], isLoading: sportsLoading, isError: sportsError, refetch: refetchSports } = useSports();
+  const { data: liveMatches = [], isLoading: liveLoading, isError: liveError, refetch: refetchLive } = useLiveMatches();
+  const { data: todayMatches = [], isLoading: todayLoading, isError: todayError, refetch: refetchToday } = useTodayMatches();
 
   const isLoading = sportsLoading && liveLoading && todayLoading;
+  const isError = (sportsError || liveError || todayError) && (!sports.length && !todayMatches.length);
+
+  const handleRetry = () => {
+    if (sportsError) refetchSports();
+    if (liveError) refetchLive();
+    if (todayError) refetchToday();
+  };
 
   const featured = sortByHeat([...liveMatches, ...todayMatches])[0] ?? todayMatches[0];
   const trending = sortByHeat(liveMatches.length ? liveMatches : todayMatches).slice(0, 8);
@@ -26,6 +34,17 @@ export function HomeHub() {
 
   if (isLoading) {
     return <HomeLoader />;
+  }
+
+  if (isError) {
+    return (
+      <main className="container-page min-h-[70vh] pb-24 pt-32 md:pb-16 flex items-center justify-center">
+        <ErrorState 
+          message="Failed to synchronize signals from the upstream sports provider. Please try reconnecting." 
+          retry={handleRetry} 
+        />
+      </main>
+    );
   }
 
   return (
