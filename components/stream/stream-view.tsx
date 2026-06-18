@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MatchCard } from "@/components/match/match-card";
 import type { StreamedMatch, StreamedStream } from "@/lib/streamed/types";
+import { StreamTelemetrySidebar } from "@/components/stream/stream-telemetry-sidebar";
 
 interface StreamViewProps {
   source: string;
@@ -66,8 +67,14 @@ export function StreamView({ id, streams, match, related }: StreamViewProps) {
 
   return (
     <main className="container-page pb-24 pt-32 md:pb-16">
-      <div className="grid gap-6 xl:grid-cols-[1fr_360px]">
-        <section>
+      <div className={match ? "grid gap-6 lg:grid-cols-[1fr_320px] xl:grid-cols-[300px_1fr_360px]" : "grid gap-6 xl:grid-cols-[1fr_360px]"}>
+        {match ? (
+          <aside className="hidden xl:block h-full">
+            <StreamTelemetrySidebar match={match} />
+          </aside>
+        ) : null}
+
+        <section className="flex flex-col min-w-0">
           <div className="relative z-10 overflow-hidden rounded-2xl border border-white/10 bg-black shadow-panel">
             <div className="flex items-center justify-between border-b border-white/10 bg-graphite-900/90 px-4 py-3">
               <div className="flex min-w-0 items-center gap-3">
