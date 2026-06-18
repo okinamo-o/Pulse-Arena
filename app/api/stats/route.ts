@@ -3,6 +3,7 @@
 import { ComprehensiveMatchData, MatchEvent } from "@/lib/streamed/types";
 import * as Sentry from "@sentry/nextjs";
 
+export const dynamic = "force-dynamic";
 export const revalidate = 5; // Cache for 5 seconds
 
 export async function GET(request: Request) {
@@ -246,7 +247,7 @@ export async function GET(request: Request) {
     } catch (e) {}
 
     return Response.json(mappedData, {
-      headers: { "cache-control": "public, s-maxage=60, stale-while-revalidate=120" }
+      headers: { "cache-control": "public, s-maxage=5, stale-while-revalidate=10" }
     });
 
   } catch (error) {
@@ -261,7 +262,7 @@ export async function GET(request: Request) {
     };
 
     return Response.json(emptyData, {
-      headers: { "cache-control": "public, s-maxage=60, stale-while-revalidate=120" }
+      headers: { "cache-control": "public, s-maxage=5, stale-while-revalidate=10" }
     });
   }
 }
