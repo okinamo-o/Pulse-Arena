@@ -21,7 +21,7 @@ export function MatchAnalyticsTabs({ homeTeam, awayTeam }: { homeTeam?: string; 
       return res.json();
     },
     enabled: Boolean(homeTeam && awayTeam),
-    refetchInterval: 60000,
+    refetchInterval: 10000,
   });
 
   if (!homeTeam || !awayTeam) return null;

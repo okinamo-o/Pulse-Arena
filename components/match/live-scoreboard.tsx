@@ -24,7 +24,7 @@ export function LiveScoreboard({ homeTeam, awayTeam, homeBadge, awayBadge, match
       return res.json();
     },
     enabled: Boolean(homeTeam && awayTeam),
-    refetchInterval: 30000,
+    refetchInterval: 10000,
   });
 
   const displayScore = data?.score ? `${data.score.home} - ${data.score.away}` : "- - -";

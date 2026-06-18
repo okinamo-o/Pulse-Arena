@@ -3,7 +3,7 @@
 import { ComprehensiveMatchData, MatchEvent } from "@/lib/streamed/types";
 import * as Sentry from "@sentry/nextjs";
 
-export const revalidate = 60; // Cache for 60 seconds
+export const revalidate = 10; // Cache for 10 seconds
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -17,7 +17,7 @@ export async function GET(request: Request) {
   try {
     // 1. Find the Match ID from ESPN Scoreboard
     const scoreboardUrl = 'https://site.api.espn.com/apis/site/v2/sports/soccer/all/scoreboard';
-    const scoreboardRes = await fetch(scoreboardUrl, { next: { revalidate: 60 } });
+    const scoreboardRes = await fetch(scoreboardUrl, { next: { revalidate: 10 } });
     if (!scoreboardRes.ok) throw new Error("Failed to fetch ESPN Scoreboard");
     const scoreboardData = await scoreboardRes.json();
     
@@ -42,7 +42,7 @@ export async function GET(request: Request) {
 
     // 2. Fetch the Match Summary
     const summaryUrl = `https://site.api.espn.com/apis/site/v2/sports/soccer/all/summary?event=${gameId}`;
-    const summaryRes = await fetch(summaryUrl, { next: { revalidate: 60 } });
+    const summaryRes = await fetch(summaryUrl, { next: { revalidate: 10 } });
     if (!summaryRes.ok) throw new Error("Failed to fetch ESPN Summary");
     const summaryData = await summaryRes.json();
 
