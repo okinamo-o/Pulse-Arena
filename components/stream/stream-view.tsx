@@ -94,8 +94,6 @@ export function StreamView({ id, streams, match, related }: StreamViewProps) {
                   title={`${match?.title ?? "Live sports"} stream ${activeStream.streamNo}`}
                   className="h-full w-full"
                   allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-                  sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
-                  allowFullScreen
                   referrerPolicy="no-referrer"
                 />
               ) : (
