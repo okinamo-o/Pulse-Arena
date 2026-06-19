@@ -1,12 +1,18 @@
 import { STREAMED_ORIGIN } from "@/lib/streamed/client";
 import * as Sentry from "@sentry/nextjs";
 
+export const dynamic = "force-dynamic";
 export const revalidate = 30;
 
 export async function GET(_request: Request, context: { params: Promise<{ path: string[] }> }) {
   const { path } = await context.params;
   const upstreamPath = path.map((part) => encodeURIComponent(part).replace(/%2E/gi, ".").replace(/%2D/gi, "-").replace(/%5F/gi, "_")).join("/");
-  const upstream = `${STREAMED_ORIGIN}/api/${upstreamPath}`;
+  
+  // Append a cache-busting timestamp to bypass upstream CDN caching
+  const t = Math.floor(Date.now() / 30000); 
+  const separator = upstreamPath.includes("?") ? "&" : "?";
+  const upstream = `${STREAMED_ORIGIN}/api/${upstreamPath}${separator}_=${t}`;
+  
   try {
     const response = await fetch(upstream, {
       next: { revalidate },
