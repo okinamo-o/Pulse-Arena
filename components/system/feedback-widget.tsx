@@ -10,6 +10,8 @@ export function FeedbackWidget() {
   const [status, setStatus] = React.useState<"idle" | "submitting" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = React.useState("");
 
+  const [category, setCategory] = React.useState("bug");
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!message.trim()) return;
@@ -19,7 +21,7 @@ export function FeedbackWidget() {
       const res = await fetch("/api/feedback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message }),
+        body: JSON.stringify({ message, category }),
       });
 
       if (!res.ok) {
@@ -32,6 +34,7 @@ export function FeedbackWidget() {
         setTimeout(() => {
           setStatus("idle");
           setMessage("");
+          setCategory("bug");
         }, 300);
       }, 2000);
     } catch (err) {
@@ -77,6 +80,18 @@ export function FeedbackWidget() {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="w-full rounded-lg border border-white/10 bg-white/5 p-3 text-sm text-white focus:border-signal-lime focus:outline-none focus:ring-1 focus:ring-signal-lime"
+                  disabled={status === "submitting"}
+                >
+                  <option value="bug" className="bg-graphite-900 text-white">Bug Report</option>
+                  <option value="feature" className="bg-graphite-900 text-white">Feature Request</option>
+                  <option value="stream" className="bg-graphite-900 text-white">Stream Issue</option>
+                  <option value="other" className="bg-graphite-900 text-white">Other</option>
+                </select>
+
                 <textarea
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
@@ -98,7 +113,7 @@ export function FeedbackWidget() {
                   {status === "submitting" ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
-                    "Send Bug Report"
+                    "Send Report"
                   )}
                 </Button>
               </form>

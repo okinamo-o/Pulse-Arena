@@ -2,23 +2,27 @@ import { NextResponse } from "next/server";
 
 export interface FeedbackReport {
   id: string;
+  category: "bug" | "feature" | "stream" | "other";
+  status: "new" | "resolved";
   message: string;
   timestamp: string;
   userAgent: string;
 }
 
 // Simple in-memory fallback for development without Upstash.
-const localStore: FeedbackReport[] = [];
+const localStore = new Map<string, FeedbackReport>();
 
 export async function POST(req: Request) {
   try {
-    const { message } = await req.json();
+    const { message, category = "other" } = await req.json();
     if (!message) {
       return NextResponse.json({ error: "Message is required" }, { status: 400 });
     }
 
     const report: FeedbackReport = {
       id: crypto.randomUUID(),
+      category,
+      status: "new",
       message,
       timestamp: new Date().toISOString(),
       userAgent: req.headers.get("user-agent") || "unknown",
@@ -28,7 +32,7 @@ export async function POST(req: Request) {
     const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
 
     if (redisUrl && redisToken) {
-      const res = await fetch(`${redisUrl}/lpush/pulse-arena:feedback`, {
+      const res = await fetch(`${redisUrl}/hset/pulse-arena:feedback/${report.id}`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${redisToken}`,
@@ -42,7 +46,7 @@ export async function POST(req: Request) {
       }
     } else {
       console.warn("UPSTASH_REDIS_REST_URL not configured. Falling back to local memory.");
-      localStore.unshift(report);
+      localStore.set(report.id, report);
     }
 
     return NextResponse.json({ success: true, report });
@@ -59,8 +63,9 @@ export async function GET() {
 
   if (redisUrl && redisToken) {
     try {
-      const res = await fetch(`${redisUrl}/lrange/pulse-arena:feedback/0/-1`, {
+      const res = await fetch(`${redisUrl}/hvals/pulse-arena:feedback`, {
         headers: { Authorization: `Bearer ${redisToken}` },
+        cache: "no-store"
       });
       const data = await res.json();
       
@@ -69,9 +74,12 @@ export async function GET() {
           try {
             return JSON.parse(item);
           } catch {
-            return { message: "Invalid JSON record", id: "error", timestamp: "", userAgent: "" };
+            return { message: "Invalid JSON record", id: "error", timestamp: "", userAgent: "", category: "other", status: "new" };
           }
         });
+        
+        // Sort newest first
+        parsed.sort((a: FeedbackReport, b: FeedbackReport) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
         return NextResponse.json(parsed);
       }
       return NextResponse.json([]);
@@ -82,5 +90,7 @@ export async function GET() {
   }
 
   // Fallback
-  return NextResponse.json(localStore);
+  const parsed = Array.from(localStore.values()).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+  return NextResponse.json(parsed);
 }
+
