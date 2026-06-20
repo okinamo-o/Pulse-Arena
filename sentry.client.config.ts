@@ -9,4 +9,17 @@ Sentry.init({
 
   // Setting this option to true will print useful information to the console while you're setting up Sentry.
   debug: false,
+
+  integrations: [
+    Sentry.feedbackIntegration({
+      colorScheme: "dark",
+      isEmailRequired: false,
+      isNameRequired: false,
+      buttonLabel: "Report Bug",
+      submitButtonLabel: "Send Bug Report",
+      formTitle: "Report an Issue",
+      messagePlaceholder: "What went wrong or what feature would you like to see?",
+      successMessageText: "Thanks! We've received your report.",
+    }),
+  ],
 });
