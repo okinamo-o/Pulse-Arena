@@ -8,6 +8,7 @@ import { TopNavigation } from "@/components/layout/top-navigation";
 import { LiveTicker } from "@/components/layout/live-ticker";
 import { Footer } from "@/components/layout/footer";
 import { DegradedModeBanner } from "@/components/system/degraded-banner";
+import { FeedbackWidget } from "@/components/system/feedback-widget";
 import { useAllMatches } from "@/hooks/use-streamed";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -35,6 +36,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </div>
       <Footer />
       <MobileNavigation />
+      <FeedbackWidget />
     </div>
   );
 }

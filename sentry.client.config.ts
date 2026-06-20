@@ -7,16 +7,5 @@ Sentry.init({
   // Adjust this value in production, or use tracesSampler for greater control
   tracesSampleRate: 1,
 
-  integrations: [
-    Sentry.feedbackIntegration({
-      colorScheme: "dark",
-      autoInject: true,
-      showBranding: false,
-      buttonLabel: "Report Bug",
-      submitButtonLabel: "Send Bug Report",
-      formTitle: "Report an Issue",
-      messagePlaceholder: "What went wrong or what feature would you like to see?",
-      successMessageText: "Thanks! We've received your report.",
-    }),
-  ],
+  integrations: [],
 });
