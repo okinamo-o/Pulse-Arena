@@ -1,16 +1,8 @@
 import { NextResponse } from "next/server";
+import { FeedbackReport, getLocalStore, saveLocalStore } from "@/lib/feedback-store";
 
-export interface FeedbackReport {
-  id: string;
-  category: "bug" | "feature" | "stream" | "other";
-  status: "new" | "resolved";
-  message: string;
-  timestamp: string;
-  userAgent: string;
-}
-
-// Simple in-memory fallback for development without Upstash.
-const localStore = new Map<string, FeedbackReport>();
+// Re-export type so we don't break other files referencing it
+export type { FeedbackReport };
 
 export async function POST(req: Request) {
   try {
@@ -45,8 +37,10 @@ export async function POST(req: Request) {
         throw new Error("Failed to save to database");
       }
     } else {
-      console.warn("UPSTASH_REDIS_REST_URL not configured. Falling back to local memory.");
-      localStore.set(report.id, report);
+      console.warn("UPSTASH_REDIS_REST_URL not configured. Falling back to local file.");
+      const store = getLocalStore();
+      store.set(report.id, report);
+      saveLocalStore(store);
     }
 
     return NextResponse.json({ success: true, report });
@@ -90,7 +84,8 @@ export async function GET() {
   }
 
   // Fallback
-  const parsed = Array.from(localStore.values()).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+  const store = getLocalStore();
+  const parsed = Array.from(store.values()).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
   return NextResponse.json(parsed);
 }
 

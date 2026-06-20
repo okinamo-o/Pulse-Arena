@@ -2,18 +2,22 @@
 
 import { revalidatePath } from "next/cache";
 
-import { FeedbackReport } from "@/app/api/feedback/route";
+import { FeedbackReport, getLocalStore, saveLocalStore } from "@/lib/feedback-store";
 
 const redisUrl = process.env.UPSTASH_REDIS_REST_URL;
 const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
 
 export async function resolveFeedback(id: string, currentData: FeedbackReport) {
-  if (!redisUrl || !redisToken) {
-    console.warn("No Upstash Redis URL/Token found for resolveFeedback");
-    return { error: "Action failed: Upstash Redis is not configured. Please add UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN to your .env file to enable management features." };
-  }
+  const updatedData = { ...currentData, status: "resolved" as const };
 
-  const updatedData = { ...currentData, status: "resolved" };
+  if (!redisUrl || !redisToken) {
+    console.warn("No Upstash Redis URL/Token found for resolveFeedback. Using local fallback.");
+    const store = getLocalStore();
+    store.set(id, updatedData);
+    saveLocalStore(store);
+    revalidatePath("/admin");
+    return { success: true };
+  }
 
   try {
     const res = await fetch(`${redisUrl}/hset/pulse-arena:feedback/${id}`, {
@@ -37,8 +41,12 @@ export async function resolveFeedback(id: string, currentData: FeedbackReport) {
 
 export async function deleteFeedback(id: string) {
   if (!redisUrl || !redisToken) {
-    console.warn("No Upstash Redis URL/Token found for deleteFeedback");
-    return { error: "Action failed: Upstash Redis is not configured. Please add UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN to your .env file to enable management features." };
+    console.warn("No Upstash Redis URL/Token found for deleteFeedback. Using local fallback.");
+    const store = getLocalStore();
+    store.delete(id);
+    saveLocalStore(store);
+    revalidatePath("/admin");
+    return { success: true };
   }
 
   try {
