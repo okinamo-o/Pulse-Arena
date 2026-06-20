@@ -16,7 +16,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
             refetchOnWindowFocus: false,
             retry: 2,
             retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 8000),
-            gcTime: 1000 * 60 * 60 * 24, // Keep cached data for 24 hours to support offline mode
+            gcTime: 1000 * 60 * 60 * 2, // 2h
           }
         }
       })
@@ -38,7 +38,16 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <PersistQueryClientProvider 
       client={queryClient} 
-      persistOptions={{ persister, maxAge: 1000 * 60 * 60 * 24 }} // 24h
+      persistOptions={{ 
+        persister, 
+        maxAge: 1000 * 60 * 60 * 2, // 2h
+        dehydrateOptions: {
+          shouldDehydrateQuery: (query) => {
+            const keyStr = JSON.stringify(query.queryKey);
+            return !keyStr.includes("telemetry") && !keyStr.includes("watch");
+          }
+        }
+      }}
     >
       {children}
       <ReminderEngine />

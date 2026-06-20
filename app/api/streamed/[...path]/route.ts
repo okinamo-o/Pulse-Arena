@@ -6,6 +6,10 @@ export const revalidate = 30;
 
 export async function GET(_request: Request, context: { params: Promise<{ path: string[] }> }) {
   const { path } = await context.params;
+  if (path.length > 5) {
+    return Response.json({ error: "Path too deep" }, { status: 400 });
+  }
+
   const upstreamPath = path.map((part) => encodeURIComponent(part).replace(/%2E/gi, ".").replace(/%2D/gi, "-").replace(/%5F/gi, "_")).join("/");
   
   // Append a cache-busting timestamp to bypass upstream CDN caching
@@ -16,6 +20,7 @@ export async function GET(_request: Request, context: { params: Promise<{ path: 
   try {
     const response = await fetch(upstream, {
       next: { revalidate },
+      signal: AbortSignal.timeout(8000),
       headers: {
         accept: "application/json"
       }

@@ -54,11 +54,16 @@ export function TopNavigation() {
         </nav>
         <div className="ml-auto flex items-center gap-2">
           <SearchCommand>
-            <Button variant="secondary" className="hidden min-w-[220px] justify-start text-white/54 lg:inline-flex">
-              <Search className="h-4 w-4" aria-hidden="true" />
-              Search matches
-              <span className="ml-auto rounded border border-white/10 px-1.5 py-0.5 text-[0.64rem] text-white/38">/</span>
-            </Button>
+            <span className="flex items-center">
+              <Button variant="secondary" className="hidden min-w-[220px] justify-start text-white/54 lg:inline-flex" tabIndex={-1}>
+                <Search className="h-4 w-4" aria-hidden="true" />
+                Search matches
+                <span className="ml-auto rounded border border-white/10 px-1.5 py-0.5 text-[0.64rem] text-white/38">/</span>
+              </Button>
+              <Button size="icon" variant="secondary" className="lg:hidden" aria-label="Search matches" tabIndex={-1}>
+                <Search className="h-4 w-4" aria-hidden="true" />
+              </Button>
+            </span>
           </SearchCommand>
           <Button asChild className="hidden sm:inline-flex">
             <Link href="/live">
@@ -66,11 +71,6 @@ export function TopNavigation() {
               Watch live
             </Link>
           </Button>
-          <SearchCommand>
-            <Button size="icon" variant="secondary" className="lg:hidden" aria-label="Search matches">
-              <Search className="h-4 w-4" aria-hidden="true" />
-            </Button>
-          </SearchCommand>
         </div>
       </div>
     </header>

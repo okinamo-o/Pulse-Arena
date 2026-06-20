@@ -10,27 +10,35 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const home = searchParams.get("home");
   const away = searchParams.get("away");
+  const category = searchParams.get("category")?.toLowerCase() || "";
 
   if (!home || !away) {
     return Response.json({ error: "Missing home or away team parameters" }, { status: 400 });
+  }
+
+  if (category && category !== "football" && category !== "soccer") {
+    return Response.json({ status: "unsupported", reason: "Telemetry only supports soccer currently" }, { status: 204 });
   }
 
   try {
     // 1. Find the Match ID from ESPN Scoreboard
     const t = Math.floor(Date.now() / 5000);
     const scoreboardUrl = `https://site.api.espn.com/apis/site/v2/sports/soccer/all/scoreboard?_=${t}`;
-    const scoreboardRes = await fetch(scoreboardUrl, { next: { revalidate: 5 } });
+    const scoreboardRes = await fetch(scoreboardUrl, { 
+      next: { revalidate: 5 },
+      signal: AbortSignal.timeout(8000)
+    });
     if (!scoreboardRes.ok) throw new Error("Failed to fetch ESPN Scoreboard");
     const scoreboardData = await scoreboardRes.json();
     
-    // We try to match either the home or away team name (case-insensitive substring match)
     const normalizedHome = home.toLowerCase();
     const normalizedAway = away.toLowerCase();
     
     let targetEvent = null;
     for (const event of scoreboardData.events) {
       const eventName = event.name.toLowerCase();
-      if (eventName.includes(normalizedHome) || eventName.includes(normalizedAway)) {
+      // Require strong match: both teams must be in the event name
+      if (eventName.includes(normalizedHome) && eventName.includes(normalizedAway)) {
         targetEvent = event;
         break;
       }
@@ -44,7 +52,10 @@ export async function GET(request: Request) {
 
     // 2. Fetch the Match Summary
     const summaryUrl = `https://site.api.espn.com/apis/site/v2/sports/soccer/all/summary?event=${gameId}&_=${t}`;
-    const summaryRes = await fetch(summaryUrl, { next: { revalidate: 5 } });
+    const summaryRes = await fetch(summaryUrl, { 
+      next: { revalidate: 5 },
+      signal: AbortSignal.timeout(8000)
+    });
     if (!summaryRes.ok) throw new Error("Failed to fetch ESPN Summary");
     const summaryData = await summaryRes.json();
 
@@ -252,18 +263,16 @@ export async function GET(request: Request) {
     });
 
   } catch (error) {
-    Sentry.captureException(error);
+    if (!(error instanceof Error && error.message === "Match not found on ESPN")) {
+      Sentry.captureException(error);
+    }
     
-    const emptyData: ComprehensiveMatchData = {
-      score: undefined,
-      events: [],
-      stats: undefined,
-      lineups: undefined,
-      standings: undefined
-    };
-
-    return Response.json(emptyData, {
-      headers: { "cache-control": "public, s-maxage=5, stale-while-revalidate=10" }
-    });
+    return Response.json(
+      { status: "error", reason: error instanceof Error ? error.message : "Unknown error" },
+      {
+        status: 503,
+        headers: { "cache-control": "no-store" }
+      }
+    );
   }
 }

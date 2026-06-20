@@ -17,7 +17,8 @@ export function StreamTelemetrySidebar({ match }: { match?: StreamedMatch }) {
     queryKey: ["streamed", "telemetry", homeTeam, awayTeam],
     queryFn: async () => {
       if (!homeTeam || !awayTeam) return null;
-      const res = await fetch(`/api/stats?home=${encodeURIComponent(homeTeam)}&away=${encodeURIComponent(awayTeam)}`);
+      const categoryParam = match?.category ? `&category=${encodeURIComponent(match.category)}` : "";
+      const res = await fetch(`/api/stats?home=${encodeURIComponent(homeTeam)}&away=${encodeURIComponent(awayTeam)}${categoryParam}`);
       if (!res.ok) throw new Error("Failed to fetch telemetry");
       return res.json();
     },
