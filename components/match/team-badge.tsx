@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
 import { badgeImageUrl } from "@/lib/streamed/client";
 import { getTeamInitials } from "@/lib/streamed/selectors";
@@ -18,6 +21,7 @@ const sizes = {
 };
 
 export function TeamBadge({ name, badge, size = "md", className }: TeamBadgeProps) {
+  const [error, setError] = useState(false);
   const src = badgeImageUrl(badge);
 
   return (
@@ -29,13 +33,14 @@ export function TeamBadge({ name, badge, size = "md", className }: TeamBadgeProp
       )}
       aria-label={name ? `${name} badge` : "Team badge"}
     >
-      {src ? (
+      {src && !error ? (
         <Image
           src={src}
           alt=""
           fill
           sizes={size === "xl" ? "112px" : size === "lg" ? "80px" : "56px"}
           className="object-contain p-2"
+          onError={() => setError(true)}
         />
       ) : (
         <span>{getTeamInitials(name)}</span>

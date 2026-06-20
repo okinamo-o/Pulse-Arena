@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { GlassPanel } from "@/components/ui/glass-panel";
 import { ErrorState } from "@/components/system/error-state";
 import { useSports, useTodayMatches } from "@/hooks/use-streamed";
+import { getMatchStatus } from "@/lib/streamed/selectors";
 
 export function SportsDirectory() {
   const { data: sports = [], isLoading: sportsLoading, isError: sportsError, refetch: refetchSports } = useSports();
@@ -70,9 +71,13 @@ export function SportsDirectory() {
       <section className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {sports.map((sport, index) => {
           const sportMatches = matches.filter((match) => match.category === sport.id);
-          const liveCount = sportMatches.filter((match) => match.date <= Date.now()).length;
+          const liveCount = sportMatches.filter((match) => {
+            const status = getMatchStatus(match);
+            return status === "live" || status === "recent";
+          }).length;
+          
           return (
-            <Link key={sport.id} href={`/sports/${sport.id}`} className="group">
+            <Link key={sport.id} href={`/sports/${encodeURIComponent(sport.id)}`} className="group">
               <GlassPanel className="clip-sport min-h-52 p-5 transition group-hover:-translate-y-1 group-hover:border-signal-lime/40">
                 <div className="flex items-center justify-between">
                   <Badge variant={index % 2 === 0 ? "live" : "hot"}>{sportMatches.length} events</Badge>

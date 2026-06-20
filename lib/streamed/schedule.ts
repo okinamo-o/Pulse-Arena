@@ -135,17 +135,23 @@ export function generateICSDownloadUrl(match: StreamedMatch): string {
     return d.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
   };
   
+  const escapeICS = (str: string) => {
+    return (str || "").replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n").replace(/\r/g, "");
+  };
+  
+  const safeId = (match.id || "").replace(/[\r\n]/g, "");
+
   const fileContent = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
     "PRODID:-//Pulse Arena//Sports Streaming//EN",
     "BEGIN:VEVENT",
-    `UID:match-${match.id}@pulsearena`,
+    `UID:match-${safeId}@pulsearena`,
     `DTSTAMP:${formatDateStr(new Date())}`,
     `DTSTART:${formatDateStr(startDate)}`,
     `DTEND:${formatDateStr(endDate)}`,
-    `SUMMARY:Pulse Arena: ${match.title}`,
-    `DESCRIPTION:Watch live on Pulse Arena. Category: ${match.category}`,
+    `SUMMARY:Pulse Arena: ${escapeICS(match.title)}`,
+    `DESCRIPTION:Watch live on Pulse Arena. Category: ${escapeICS(match.category)}`,
     "END:VEVENT",
     "END:VCALENDAR"
   ].join("\r\n");

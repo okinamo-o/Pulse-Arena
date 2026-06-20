@@ -1,13 +1,23 @@
 import type { MatchInsight, MatchStatus, NormalizedMatch, StreamedMatch, StreamedStream } from "@/lib/streamed/types";
 
-const LIVE_WINDOW_MS = 135 * 60 * 1000;
+const DEFAULT_LIVE_WINDOW_MS = 135 * 60 * 1000;
 const RECENT_WINDOW_MS = 90 * 60 * 1000;
+
+export function getLiveWindowMs(category?: string) {
+  if (!category) return DEFAULT_LIVE_WINDOW_MS;
+  const c = category.toLowerCase();
+  if (c.includes("cricket") || c.includes("golf") || c.includes("motor")) return 300 * 60 * 1000; // 5 hours
+  if (c.includes("baseball") || c.includes("tennis") || c.includes("fight")) return 240 * 60 * 1000; // 4 hours
+  if (c.includes("american-football")) return 210 * 60 * 1000; // 3.5 hours
+  return DEFAULT_LIVE_WINDOW_MS;
+}
 
 export function getMatchStatus(match: StreamedMatch, now = Date.now()): MatchStatus {
   const startsIn = match.date - now;
-  if (startsIn <= 0 && Math.abs(startsIn) <= LIVE_WINDOW_MS) return "live";
+  const liveWindow = getLiveWindowMs(match.category);
+  if (startsIn <= 0 && Math.abs(startsIn) <= liveWindow) return "live";
   if (startsIn > 0) return "upcoming";
-  if (Math.abs(startsIn) <= LIVE_WINDOW_MS + RECENT_WINDOW_MS) return "recent";
+  if (Math.abs(startsIn) <= liveWindow + RECENT_WINDOW_MS) return "recent";
   return "ended";
 }
 
@@ -52,9 +62,10 @@ export function formatMatchDate(timestamp: number) {
   }).format(timestamp);
 }
 
-export function getCountdownLabel(timestamp: number, now = Date.now()) {
+export function getCountdownLabel(timestamp: number, now = Date.now(), category?: string) {
   const diff = timestamp - now;
-  if (diff <= 0 && Math.abs(diff) <= LIVE_WINDOW_MS) return "Live now";
+  const liveWindow = getLiveWindowMs(category);
+  if (diff <= 0 && Math.abs(diff) <= liveWindow) return "Live now";
   if (diff <= 0) return "Recently aired";
   const totalMinutes = Math.ceil(diff / 60000);
   const days = Math.floor(totalMinutes / 1440);

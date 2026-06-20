@@ -31,10 +31,10 @@ export default function ErrorPage({
         <p className="mx-auto mt-4 max-w-lg text-white/62">
           The dashboard signal has been interrupted. This is usually caused by network issues or API stream timeouts.
         </p>
-        {error.message && (
-          <pre className="mx-auto mt-4 max-w-lg overflow-x-auto rounded border border-white/5 bg-black/30 p-3 text-left font-mono text-xs text-signal-orange/80">
-            {error.message}
-          </pre>
+        {error.digest && (
+          <p className="mt-4 text-xs font-mono text-white/40">
+            Error ID: {error.digest}
+          </p>
         )}
         <div className="mt-7 flex flex-wrap justify-center gap-3">
           <Button onClick={reset}>

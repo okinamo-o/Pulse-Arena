@@ -1,4 +1,4 @@
-# Pulse Arena Project Audit Report
+Default Sport Filter# Pulse Arena Project Audit Report
 
 Date: 2026-06-20  
 Workspace: `c:\Users\Louay\Documents\SportsStreaming`
@@ -63,15 +63,19 @@ Source purpose inventory:
 ### Issue 1
 
 ### Issue
+
 Third-party stream iframe is unsandboxed.
 
 ### Severity
+
 High
 
 ### Location
+
 `components/stream/stream-view.tsx`, `StreamView`
 
 ### Evidence
+
 ```tsx
 <iframe
   src={activeStream.embedUrl}
@@ -79,376 +83,487 @@ High
   referrerPolicy="no-referrer"
 />
 ```
+
 There is no `sandbox`, host validation, or page-level CSP limiting `frame-src`.
 
 ### Impact
+
 Untrusted stream embeds can execute scripts, open popups/top navigation flows depending on browser behavior, fingerprint users, and expose the app to malicious embed behavior.
 
 ### Recommended Fix
+
 Validate `new URL(activeStream.embedUrl)` against an explicit allowlist, add a restrictive iframe `sandbox`, add `allowFullScreen`, and set a CSP `frame-src` allowlist in `next.config.ts` headers.
 
 ### Confidence
+
 High
 
 ### Issue 2
 
 ### Issue
+
 Match telemetry is hard-coded to ESPN soccer for every sport.
 
 ### Severity
+
 High
 
 ### Location
+
 `app/api/stats/route.ts`, `LiveScoreboard`, `MatchAnalyticsTabs`, `StreamTelemetrySidebar`
 
 ### Evidence
+
 ```ts
 const scoreboardUrl = `https://site.api.espn.com/apis/site/v2/sports/soccer/all/scoreboard?_=${t}`;
 ```
+
 Every match center calls `/api/stats?home=...&away=...` without passing sport/category.
 
 ### Impact
+
 Basketball, baseball, fight, tennis, motor-sports, and other events receive wrong or empty soccer telemetry, undermining a core product surface.
 
 ### Recommended Fix
+
 Pass `match.category` into telemetry, route by supported provider/sport, and return `204`/typed unsupported state for unsupported sports instead of pretending telemetry exists.
 
 ### Confidence
+
 High
 
 ### Issue 3
 
 ### Issue
+
 Telemetry event matching can select the wrong ESPN event.
 
 ### Severity
+
 High
 
 ### Location
+
 `app/api/stats/route.ts`, lines 26-40
 
 ### Evidence
+
 ```ts
 if (eventName.includes(normalizedHome) || eventName.includes(normalizedAway)) {
   targetEvent = event;
   break;
 }
 ```
+
 Only one team substring is enough to match.
 
 ### Impact
+
 Generic names such as "United", "City", "Tigers", or shared club names can bind one match page to another live event and show incorrect scores/standings.
 
 ### Recommended Fix
+
 Normalize both sides, require both teams or a strong alias match, constrain by date/league, and expose a confidence score. Return no telemetry below threshold.
 
 ### Confidence
+
 High
 
 ### Issue 4
 
 ### Issue
+
 Lint currently fails.
 
 ### Severity
+
 High
 
 ### Location
+
 `package.json`, `check_html.js`, `extract.js`, `test_filter.js`
 
 ### Evidence
+
 `npm run lint` reports `@typescript-eslint/no-require-imports` errors for all three root scratch scripts.
 
 ### Impact
+
 CI would fail immediately if lint is required, and production readiness gates cannot rely on a clean static-analysis baseline.
 
 ### Recommended Fix
+
 Delete/move scratch scripts, convert them to ESM, or ignore a dedicated `scripts/`/`scratch/` directory intentionally.
 
 ### Confidence
+
 High
 
 ### Issue 5
 
 ### Issue
+
 No real automated tests are configured.
 
 ### Severity
+
 High
 
 ### Location
+
 `package.json`, repository test inventory
 
 ### Evidence
+
 `npm run` exposes only `dev`, `build`, `start`, `lint`, and `typecheck`; `rg '*test*'` finds only `test_filter.js`, a scratch script.
 
 ### Impact
+
 Core flows, API contracts, local persistence, schedule filtering, telemetry matching, and stream security regressions have no automated protection.
 
 ### Recommended Fix
+
 Add unit tests for `lib/streamed/*`, integration tests for both API routes with mocked upstreams, and Playwright E2E for home/search/schedule/match/watch flows.
 
 ### Confidence
+
 High
 
 ### Issue 6
 
 ### Issue
+
 No explicit security headers or CSP are configured.
 
 ### Severity
+
 Medium
 
 ### Location
+
 `next.config.ts`
 
 ### Evidence
+
 The config only defines `images`, `experimental`, and Sentry wrapping. There is no `headers()` function.
 
 ### Impact
+
 XSS blast radius, iframe behavior, referrer behavior, and permissions policy are governed mostly by browser defaults.
 
 ### Recommended Fix
+
 Add CSP, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, and `frame-ancestors`. Include explicit `connect-src`, `img-src`, and `frame-src` for Streamed/ESPN/Sentry.
 
 ### Confidence
+
 High
 
 ### Issue 7
 
 ### Issue
+
 Telemetry failures are returned as successful empty data.
 
 ### Severity
+
 Medium
 
 ### Location
+
 `app/api/stats/route.ts`, lines 254-267
 
 ### Evidence
+
 ```ts
 return Response.json(emptyData, {
-  headers: { "cache-control": "public, s-maxage=5, stale-while-revalidate=10" }
+  headers: { "cache-control": "public, s-maxage=5, stale-while-revalidate=10" },
 });
 ```
+
 The catch block omits an error status.
 
 ### Impact
+
 Clients cannot distinguish "no stats yet" from ESPN/network failure, causing silent data corruption and bad caching.
 
 ### Recommended Fix
+
 Return `502`/`503` with a typed error payload, or include `{ status: "unavailable", reason }` and avoid caching failures as normal data.
 
 ### Confidence
+
 High
 
 ### Issue 8
 
 ### Issue
+
 Public APIs lack input validation and rate limiting.
 
 ### Severity
+
 Medium
 
 ### Location
+
 `app/api/stats/route.ts`, `app/api/streamed/[...path]/route.ts`
 
 ### Evidence
+
 `home`, `away`, and catch-all `path` are accepted without length/character limits or per-client throttling.
 
 ### Impact
+
 Attackers can use the app as a polling amplifier against upstream services and can force expensive server work with very long query strings.
 
 ### Recommended Fix
+
 Validate parameter length and charset, cap path depth, use cache keys intentionally, and add platform middleware/rate limiting for both routes.
 
 ### Confidence
+
 Medium
 
 ### Issue 9
 
 ### Issue
+
 Upstream fetches have no timeout or abort strategy.
 
 ### Severity
+
 Medium
 
 ### Location
+
 `lib/streamed/client.ts`, `app/api/streamed/[...path]/route.ts`, `app/api/stats/route.ts`
 
 ### Evidence
+
 Each route/client calls `fetch(...)` without an `AbortSignal.timeout(...)`.
 
 ### Impact
+
 Slow upstreams can hold requests open, delay SSR, consume serverless duration, and make navigation feel hung.
 
 ### Recommended Fix
+
 Wrap fetches with `AbortSignal.timeout(5000-10000)`, classify timeout errors, and use retries only where idempotent and bounded.
 
 ### Confidence
+
 High
 
 ### Issue 10
 
 ### Issue
+
 External API responses are trusted without runtime validation.
 
 ### Severity
+
 Medium
 
 ### Location
+
 `lib/streamed/client.ts`, `app/api/stats/route.ts`
 
 ### Evidence
+
 ```ts
 return (await response.json()) as T;
 ```
+
 The code casts unknown JSON directly into application types.
 
 ### Impact
+
 Missing `sources`, malformed dates, or shape changes can crash pages, break sorting, or persist corrupted data.
 
 ### Recommended Fix
+
 Add runtime schemas for Streamed sports/matches/streams and ESPN telemetry. Reject or normalize invalid rows before they reach UI state.
 
 ### Confidence
+
 High
 
 ### Issue 11
 
 ### Issue
+
 Query persistence stores all query data for 24 hours.
 
 ### Severity
+
 Medium
 
 ### Location
+
 `components/app/providers.tsx`
 
 ### Evidence
+
 ```ts
 gcTime: 1000 * 60 * 60 * 24
 persistOptions={{ persister, maxAge: 1000 * 60 * 60 * 24 }}
 ```
 
 ### Impact
+
 Stream URLs, telemetry, and match data can remain stale or sensitive in IndexedDB long after they expire upstream.
 
 ### Recommended Fix
+
 Use `dehydrateOptions.shouldDehydrateQuery` to persist only low-risk lists, exclude stream/embed and telemetry queries, and use shorter TTLs.
 
 ### Confidence
+
 High
 
 ### Issue 12
 
 ### Issue
+
 Search command is mounted twice and registers duplicate global shortcuts.
 
 ### Severity
+
 Medium
 
 ### Location
+
 `components/layout/top-navigation.tsx`, `components/system/search-command.tsx`
 
 ### Evidence
+
 `TopNavigation` renders two `<SearchCommand>` instances, and each instance adds a `window.addEventListener("keydown", ...)`.
 
 ### Impact
+
 Pressing `/` or `Ctrl/Cmd+K` can open two dialogs. On the watch route, the stream view also handles `/`, causing route/modal races.
 
 ### Recommended Fix
+
 Move search modal state and keyboard listener to one global provider, or render one SearchCommand and style triggers responsively.
 
 ### Confidence
+
 High
 
 ### Issue 13
 
 ### Issue
+
 Reduced-motion preference is not applied to app animations.
 
 ### Severity
+
 Medium
 
 ### Location
+
 `store/preferences-store.ts`, `components/system/settings-view.tsx`, `components/layout/live-ticker.tsx`, Framer Motion components
 
 ### Evidence
+
 `reducedMotion` is stored and toggled, but no animation component reads it. `LiveTicker` uses `requestAnimationFrame` and says it runs across all reduced-motion settings.
 
 ### Impact
+
 The setting is misleading and accessibility-sensitive users still receive marquee and Framer Motion animations.
 
 ### Recommended Fix
+
 Read `reducedMotion` in `AppShell`, `Reveal`, `FeaturedMatchHero`, `ScheduleCard`, and `LiveTicker`; disable RAF/motion transitions when enabled.
 
 ### Confidence
+
 High
 
 ### Issue 14
 
 ### Issue
+
 Default sport preference is stored but unused.
 
 ### Severity
+
 Medium
 
 ### Location
+
 `store/preferences-store.ts`, `components/system/settings-view.tsx`
 
 ### Evidence
+
 `selectedSport` is set in settings but no other component reads it.
 
 ### Impact
+
 The settings panel promises behavior that never happens.
 
 ### Recommended Fix
+
 Apply `selectedSport` in `SportsDirectory`, `ScheduleView`, or remove the setting until implemented.
 
 ### Confidence
+
 High
 
 ### Issue 15
 
 ### Issue
+
 Dynamic route links do not consistently encode path parameters.
 
 ### Severity
+
 Medium
 
 ### Location
+
 Multiple files including `match-card.tsx`, `match-detail-view.tsx`, `featured-match-hero.tsx`, `schedule-card.tsx`, `sports-directory.tsx`
 
 ### Evidence
+
 ```tsx
 href={`/watch/${firstSource.source}/${encodeURIComponent(firstSource.id)}`}
 href={`/match/${match.id}`}
 href={`/sports/${sport.id}`}
 ```
+
 `source`, `match.id`, and `sport.id` are external data and are not always encoded.
 
 ### Impact
+
 Unexpected `/`, `?`, `#`, or encoded separators in upstream IDs can break routing or send users to the wrong route.
 
 ### Recommended Fix
+
 Wrap every dynamic path segment with `encodeURIComponent`, and centralize route builders.
 
 ### Confidence
+
 Medium
 
 ### Issue 16
 
 ### Issue
+
 ICS calendar export does not escape iCalendar fields.
 
 ### Severity
+
 Medium
 
 ### Location
+
 `lib/streamed/schedule.ts`, `generateICSDownloadUrl`
 
 ### Evidence
+
 ```ts
 `UID:match-${match.id}@pulsearena`,
 `SUMMARY:Pulse Arena: ${match.title}`,
@@ -456,463 +571,605 @@ Medium
 ```
 
 ### Impact
+
 Titles/categories containing CRLF, semicolons, commas, or backslashes can corrupt the `.ics` file or inject additional calendar properties.
 
 ### Recommended Fix
+
 Implement RFC 5545 text escaping and line folding. Strip CR/LF from UID or hash the match ID.
 
 ### Confidence
+
 High
 
 ### Issue 17
 
 ### Issue
+
 Sentry App Router setup is incomplete and noisy.
 
 ### Severity
+
 Medium
 
 ### Location
+
 `sentry.client.config.ts`, `sentry.server.config.ts`, `sentry.edge.config.ts`, `next.config.ts`
 
 ### Evidence
+
 Production build warns that instrumentation and global error handler files are missing. Client config sets `debug: true` and `tracesSampleRate: 1`.
 
 ### Impact
+
 Server/edge/rendering errors may not be captured reliably, while client telemetry can be overly noisy and expensive.
 
 ### Recommended Fix
+
 Add `instrumentation.ts`, `instrumentation-client.ts`, and `app/global-error.tsx`; set production sampling and disable client debug logs.
 
 ### Confidence
+
 High
 
 ### Issue 18
 
 ### Issue
+
 User-facing error page exposes raw error messages.
 
 ### Severity
+
 Medium
 
 ### Location
+
 `app/error.tsx`
 
 ### Evidence
+
 ```tsx
-{error.message && <pre> {error.message} </pre>}
+{
+  error.message && <pre> {error.message} </pre>;
+}
 ```
 
 ### Impact
+
 Server/client errors can reveal internal implementation details to users.
 
 ### Recommended Fix
+
 Show a generic message and correlation/digest ID; send full details to Sentry only.
 
 ### Confidence
+
 High
 
 ### Issue 19
 
 ### Issue
+
 Dependency audit reports moderate vulnerabilities through Next's bundled PostCSS.
 
 ### Severity
+
 Medium
 
 ### Location
+
 `package-lock.json`, `node_modules/next/node_modules/postcss`
 
 ### Evidence
+
 `npm audit --json` reports GHSA-qx2v-qp2m-jg93 for PostCSS `<8.5.10`; installed Next bundles `postcss@8.4.31`.
 
 ### Impact
+
 If untrusted CSS is stringified through the vulnerable path, XSS is possible.
 
 ### Recommended Fix
+
 Track/update to a Next release that bumps bundled PostCSS, or use an officially supported override/patch once available. Do not follow npm audit's bad downgrade suggestion blindly.
 
 ### Confidence
+
 Medium
 
 ### Issue 20
 
 ### Issue
+
 ESLint config imports an undeclared package directly.
 
 ### Severity
+
 Medium
 
 ### Location
+
 `eslint.config.mjs`, `package.json`
 
 ### Evidence
+
 ```js
 import { FlatCompat } from "@eslint/eslintrc";
 ```
+
 `@eslint/eslintrc` is not declared in `devDependencies`; depcheck reports it missing.
 
 ### Impact
+
 Clean installs can break if the transitive dependency layout changes.
 
 ### Recommended Fix
+
 Add `@eslint/eslintrc` as a devDependency or rewrite the config to avoid the direct import.
 
 ### Confidence
+
 High
 
 ### Issue 21
 
 ### Issue
+
 `cheerio` is declared but unused.
 
 ### Severity
+
 Medium
 
 ### Location
+
 `package.json`
 
 ### Evidence
+
 `depcheck` reports `"dependencies":["cheerio"]`, and source search finds no import.
 
 ### Impact
+
 Adds install time, attack surface, and transitive dependencies including `undici`.
 
 ### Recommended Fix
+
 Remove `cheerio` unless a planned feature uses it.
 
 ### Confidence
+
 High
 
 ### Issue 22
 
 ### Issue
+
 Large button height uses a nonexistent Tailwind utility.
 
 ### Severity
+
 Medium
 
 ### Location
+
 `components/ui/button.tsx`
 
 ### Evidence
+
 ```ts
-lg: "h-13 px-6 text-base"
+lg: "h-13 px-6 text-base";
 ```
+
 `rg h-13 .next/static/*.css` found no generated CSS.
 
 ### Impact
+
 Large buttons can lose their intended fixed height after class merging, creating inconsistent layouts.
 
 ### Recommended Fix
+
 Use `h-12`, `h-14`, or `h-[3.25rem]`.
 
 ### Confidence
+
 High
 
 ### Issue 23
 
 ### Issue
+
 Metadata base is hard-coded to a local domain.
 
 ### Severity
+
 Low
 
 ### Location
+
 `app/layout.tsx`
 
 ### Evidence
+
 ```ts
-metadataBase: new URL("https://pulse-arena.local")
+metadataBase: new URL("https://pulse-arena.local");
 ```
 
 ### Impact
+
 Canonical/OpenGraph metadata can be wrong in staging/production.
 
 ### Recommended Fix
+
 Use `process.env.NEXT_PUBLIC_SITE_URL` with a production fallback.
 
 ### Confidence
+
 High
 
 ### Issue 24
 
 ### Issue
+
 Live/recent status logic assumes all sports last 135 minutes.
 
 ### Severity
+
 Medium
 
 ### Location
+
 `lib/streamed/selectors.ts`, `getMatchStatus`
 
 ### Evidence
+
 ```ts
 const LIVE_WINDOW_MS = 135 * 60 * 1000;
 ```
 
 ### Impact
+
 Baseball, cricket, golf, motorsports, fights, and long tournaments are misclassified.
 
 ### Recommended Fix
+
 Use sport-specific durations or upstream status when available.
 
 ### Confidence
+
 High
 
 ### Issue 25
 
 ### Issue
+
 Sports directory counts every past event as live-ish.
 
 ### Severity
+
 Medium
 
 ### Location
+
 `components/system/sports-directory.tsx`
 
 ### Evidence
+
 ```ts
-const liveCount = sportMatches.filter((match) => match.date <= Date.now()).length;
+const liveCount = sportMatches.filter(
+  (match) => match.date <= Date.now(),
+).length;
 ```
 
 ### Impact
+
 Ended matches and `date: 0` channel rows inflate "signals are in or near the live window."
 
 ### Recommended Fix
+
 Use `getMatchStatus(match) === "live" || "recent"` with bounded windows.
 
 ### Confidence
+
 High
 
 ### Issue 26
 
 ### Issue
+
 Global shell fetches match data on every page.
 
 ### Severity
+
 Medium
 
 ### Location
+
 `components/layout/app-shell.tsx`, `components/layout/live-ticker.tsx`
 
 ### Evidence
+
 `AppShell` calls `useAllMatches()` and `LiveTicker` calls `useLiveMatches()` unconditionally.
 
 ### Impact
+
 Settings, favorites, and static pages still hit/persist live sports APIs, increasing baseline traffic and page work.
 
 ### Recommended Fix
+
 Gate global queries by route, use lighter ticker data, or make the degraded banner subscribe only on data-heavy pages.
 
 ### Confidence
+
 High
 
 ### Issue 27
 
 ### Issue
+
 Match pages can duplicate expensive upstream lookups.
 
 ### Severity
+
 Medium
 
 ### Location
+
 `app/match/[id]/page.tsx`, `lib/streamed/client.ts`
 
 ### Evidence
+
 `generateMetadata` and `MatchPage` both call `getMatchById`; `getMatchById` fetches today, live, and all matches.
 
 ### Impact
+
 One page request can fan out to several upstream calls, increasing latency and rate-limit pressure.
 
 ### Recommended Fix
+
 Use React `cache()`, route-level data loaders, or a direct upstream ID endpoint. Share metadata/page data where possible.
 
 ### Confidence
+
 Medium
 
 ### Issue 28
 
 ### Issue
+
 Telemetry polling is aggressive and duplicated across mounted panels.
 
 ### Severity
+
 Medium
 
 ### Location
+
 `components/match/live-scoreboard.tsx`, `components/match/match-analytics-tabs.tsx`, `components/stream/stream-telemetry-sidebar.tsx`
 
 ### Evidence
+
 Each uses `refetchInterval: 5000` with the same query key.
 
 ### Impact
+
 Popular pages can create heavy ESPN/API load. Polling continues for pre-match or stale events while panels stay mounted.
 
 ### Recommended Fix
+
 Centralize telemetry in one hook, poll only for supported live matches, add backoff, and slow/disable polling outside live state.
 
 ### Confidence
+
 High
 
 ### Issue 29
 
 ### Issue
+
 Remote image failures have no component fallback.
 
 ### Severity
+
 Medium
 
 ### Location
+
 `components/match/team-badge.tsx`, `.next-dev.err`
 
 ### Evidence
+
 `TeamBadge` renders `next/image` directly for Streamed badge URLs. Dev logs contain repeated upstream image `502` and timeout errors.
 
 ### Impact
+
 Broken badges can degrade UX and generate noisy server logs.
 
 ### Recommended Fix
+
 Add an `onError` fallback to initials, cache/proxy images, or use a resilient image component.
 
 ### Confidence
+
 High
 
 ### Issue 30
 
 ### Issue
+
 Stats route swallows parse errors silently.
 
 ### Severity
+
 Medium
 
 ### Location
+
 `app/api/stats/route.ts`
 
 ### Evidence
+
 There are multiple empty handlers: `} catch(e) {}` and `} catch (e) {}`.
 
 ### Impact
+
 Partial data loss is invisible to logs, Sentry, and callers.
 
 ### Recommended Fix
+
 Capture breadcrumbs for each parse section and include `partial: true`/`missingSections` metadata in the response.
 
 ### Confidence
+
 High
 
 ### Issue 31
 
 ### Issue
+
 Dead/unused components and duplicate error boundaries exist.
 
 ### Severity
+
 Low
 
 ### Location
+
 `components/match/match-radar.tsx`, `components/match/stream-source-grid.tsx`, `components/stream/stream-telemetry.tsx`, `components/ui/error-boundary.tsx`, `components/system/error-boundary.tsx`, `lib/design/tokens.ts`
 
 ### Evidence
+
 Repository search finds exports but no imports for these modules.
 
 ### Impact
+
 Increases maintenance cost and hides which error/logging pattern is canonical.
 
 ### Recommended Fix
+
 Remove unused modules or wire them into product flows. Consolidate to one error-boundary implementation.
 
 ### Confidence
+
 High
 
 ### Issue 32
 
 ### Issue
+
 Local storage privacy copy is inaccurate.
 
 ### Severity
+
 Low
 
 ### Location
+
 `components/system/settings-view.tsx`
 
 ### Evidence
+
 The UI says data is stored "securely" in browser local storage.
 
 ### Impact
+
 localStorage/IndexedDB are not encrypted secure stores; the text overstates privacy guarantees.
 
 ### Recommended Fix
+
 Say "stored locally in this browser" and mention clearing browser/site data.
 
 ### Confidence
+
 High
 
 ### Issue 33
 
 ### Issue
+
 Root captured artifacts are corrupt, empty, or stale.
 
 ### Severity
+
 Medium
 
 ### Location
+
 `out.json`, `out_local.json`, `next_data.txt`, `schedule.html`, `out_all.json`, `out_today.json`
 
 ### Evidence
+
 `out.json` is not valid JSON, `out_local.json` and `next_data.txt` are empty, and `schedule.html` is a captured rendered page.
 
 ### Impact
+
 These files add repo noise, confuse tooling, and already contribute to lint/build hygiene problems when scratch scripts read them.
 
 ### Recommended Fix
+
 Delete them, move intentional fixtures into `fixtures/`, or add a dedicated ignored `scratch/` folder.
 
 ### Confidence
+
 High
 
 ### Issue 34
 
 ### Issue
+
 No CI/CD, env example, or deployment config is present.
 
 ### Severity
+
 Medium
 
 ### Location
+
 Repository root
 
 ### Evidence
+
 No `.github`, `vercel.json`, Dockerfile, `netlify.toml`, or `.env.example` was found.
 
 ### Impact
+
 Build, lint, test, security checks, and required environment variables are not reproducible for collaborators or deployment.
 
 ### Recommended Fix
+
 Add CI for `npm ci`, lint, typecheck, tests, build, and audit. Add `.env.example` documenting Sentry and site/origin variables.
 
 ### Confidence
+
 High
 
 ### Issue 35
 
 ### Issue
+
 Some query functions return values outside their declared data type.
 
 ### Severity
+
 Low
 
 ### Location
+
 `components/stream/stream-telemetry.tsx`, `components/match/live-scoreboard.tsx`, `components/match/match-analytics-tabs.tsx`, `components/stream/stream-telemetry-sidebar.tsx`
 
 ### Evidence
+
 Examples include `if (!homeTeam || !awayTeam) return null;` or `return []` inside `useQuery<ComprehensiveMatchData>`.
 
 ### Impact
+
 Future refactors can assume `ComprehensiveMatchData` and dereference fields that are actually `null`/array at runtime.
 
 ### Recommended Fix
+
 Use `useQuery<ComprehensiveMatchData | null>`, return a typed empty telemetry object, or rely on `enabled` and throw if required params are missing.
 
 ### Confidence
+
 Medium
 
 ## Testing Audit

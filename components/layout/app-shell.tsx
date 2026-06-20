@@ -12,7 +12,8 @@ import { useAllMatches } from "@/hooks/use-streamed";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { isError, dataUpdatedAt, data } = useAllMatches();
+  const enabled = !["/settings", "/favorites", "/search"].includes(pathname);
+  const { isError, dataUpdatedAt, data } = useAllMatches(enabled);
 
   const isDegraded = isError && data && data.length > 0;
 

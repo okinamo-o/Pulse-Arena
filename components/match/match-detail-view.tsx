@@ -52,7 +52,7 @@ export function MatchDetailView({ match, related }: MatchDetailViewProps) {
               <div className="mt-6 flex flex-wrap gap-3">
                 {firstSource ? (
                   <Button asChild size="lg">
-                    <Link href={`/watch/${firstSource.source}/${encodeURIComponent(firstSource.id)}`}>
+                    <Link href={`/watch/${encodeURIComponent(firstSource.source)}/${encodeURIComponent(firstSource.id)}`}>
                       <Radio className="h-5 w-5" aria-hidden="true" />
                       Watch now
                     </Link>
@@ -112,7 +112,7 @@ export function MatchDetailView({ match, related }: MatchDetailViewProps) {
       {firstSource ? (
         <div className="fixed bottom-[calc(4.75rem+env(safe-area-inset-bottom))] left-0 right-0 z-30 px-4 md:hidden">
           <Button asChild className="w-full shadow-glow" size="lg">
-            <Link href={`/watch/${firstSource.source}/${encodeURIComponent(firstSource.id)}`}>
+            <Link href={`/watch/${encodeURIComponent(firstSource.source)}/${encodeURIComponent(firstSource.id)}`}>
               Watch now
               <ArrowRight className="h-5 w-5" aria-hidden="true" />
             </Link>

@@ -107,7 +107,7 @@ export function ScheduleCard({ match, className, now: externalNow }: ScheduleCar
 
         {/* Center: Matchup Details */}
         <div className="flex flex-1 items-center justify-between gap-4 border-y border-white/5 py-3 md:border-y-0 md:py-0">
-          <Link href={`/match/${match.id}`} className="flex flex-1 items-center justify-center gap-3 md:justify-start">
+          <Link href={`/match/${encodeURIComponent(match.id)}`} className="flex flex-1 items-center justify-center gap-3 md:justify-start">
             <div className="flex items-center gap-2 max-w-[40%] text-right">
               <span className="hidden truncate text-sm font-bold text-white/90 sm:inline-block">
                 {participants.home}
@@ -209,14 +209,14 @@ export function ScheduleCard({ match, className, now: externalNow }: ScheduleCar
           <div className="flex items-center">
             {status !== "upcoming" && firstSource ? (
               <Button asChild variant="default" size="sm" className="h-9">
-                <Link href={`/watch/${firstSource.source}/${encodeURIComponent(firstSource.id)}`}>
+                <Link href={`/watch/${encodeURIComponent(firstSource.source)}/${encodeURIComponent(firstSource.id)}`}>
                   Watch
                   <ArrowUpRight className="ml-1 h-3.5 w-3.5" />
                 </Link>
               </Button>
             ) : (
               <Button asChild variant="secondary" size="sm" className="h-9">
-                <Link href={`/match/${match.id}`}>
+                <Link href={`/match/${encodeURIComponent(match.id)}`}>
                   Details
                   <ArrowUpRight className="ml-1 h-3.5 w-3.5" />
                 </Link>

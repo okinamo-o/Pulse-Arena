@@ -1,3 +1,4 @@
+import { cache } from "react";
 import type {
   StreamedEndpoint,
   StreamedMatch,
@@ -82,14 +83,14 @@ export async function getStreams(source: string, id: string): Promise<StreamedSt
   return requestJson<StreamedStreamsResponse>(streamedEndpoints.streams(source, id), 20);
 }
 
-export async function getMatchById(id: string): Promise<StreamedMatch | undefined> {
+export const getMatchById = cache(async (id: string): Promise<StreamedMatch | undefined> => {
   const [today, live, all] = await Promise.allSettled([getTodayMatches(), getLiveMatches(), getAllMatches()]);
   const pools = [today, live, all]
     .filter((result): result is PromiseFulfilledResult<StreamedMatch[]> => result.status === "fulfilled")
     .flatMap((result) => result.value);
 
   return pools.find((match) => match.id === id || match.sources.some((source) => source.id === id));
-}
+});
 
 export function streamedAssetUrl(path?: string) {
   if (!path) return "";

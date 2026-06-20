@@ -8,11 +8,17 @@ import { Badge } from "@/components/ui/badge";
 import { CountdownChip } from "@/components/match/countdown-chip";
 import { MomentumMeter } from "@/components/match/momentum-meter";
 import { TeamBadge } from "@/components/match/team-badge";
+import { usePreferencesStore } from "@/store/preferences-store";
 import { posterImageUrl } from "@/lib/streamed/client";
 import { formatSportName, getMatchParticipants } from "@/lib/streamed/selectors";
 import type { StreamedMatch } from "@/lib/streamed/types";
 
-export function FeaturedMatchHero({ match }: { match: StreamedMatch }) {
+interface FeaturedMatchHeroProps {
+  match: StreamedMatch;
+}
+
+export function FeaturedMatchHero({ match }: FeaturedMatchHeroProps) {
+  const reducedMotion = usePreferencesStore((state) => state.reducedMotion);
   const participants = getMatchParticipants(match);
   const firstSource = match.sources[0];
   const poster = posterImageUrl(match);
@@ -48,14 +54,14 @@ export function FeaturedMatchHero({ match }: { match: StreamedMatch }) {
           <div className="mt-8 flex flex-wrap gap-3">
             {firstSource ? (
               <Button asChild size="lg">
-                <Link href={`/watch/${firstSource.source}/${encodeURIComponent(firstSource.id)}`}>
+                <Link href={`/watch/${encodeURIComponent(firstSource.source)}/${encodeURIComponent(firstSource.id)}`}>
                   <Radio className="h-5 w-5" aria-hidden="true" />
                   Watch now
                 </Link>
               </Button>
             ) : null}
             <Button asChild variant="secondary" size="lg">
-              <Link href={`/match/${match.id}`}>
+              <Link href={`/match/${encodeURIComponent(match.id)}`}>
                 Match center
                 <ArrowRight className="h-5 w-5" aria-hidden="true" />
               </Link>
@@ -65,7 +71,7 @@ export function FeaturedMatchHero({ match }: { match: StreamedMatch }) {
         <motion.div
           initial={{ opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: reducedMotion ? 0 : 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
           className="relative"
         >
           <div className="absolute -inset-8 rounded-full bg-signal-lime/10 blur-3xl" />
@@ -80,13 +86,13 @@ export function FeaturedMatchHero({ match }: { match: StreamedMatch }) {
               </span>
             </div>
             <div className="my-10 flex items-center justify-center gap-5">
-              <motion.div animate={{ y: [0, -8, 0] }} transition={{ duration: 5, repeat: Infinity }}>
+              <motion.div animate={reducedMotion ? {} : { y: [0, -8, 0] }} transition={{ duration: 5, repeat: Infinity }}>
                 <TeamBadge name={participants.home} badge={match.teams?.home?.badge} size="xl" />
               </motion.div>
               <div className="rounded-full border border-white/10 bg-black/35 px-4 py-2 font-mono text-sm font-black text-white/58">
                 VS
               </div>
-              <motion.div animate={{ y: [0, 8, 0] }} transition={{ duration: 5.5, repeat: Infinity }}>
+              <motion.div animate={reducedMotion ? {} : { y: [0, 8, 0] }} transition={{ duration: 5.5, repeat: Infinity }}>
                 <TeamBadge name={participants.away} badge={match.teams?.away?.badge} size="xl" />
               </motion.div>
             </div>

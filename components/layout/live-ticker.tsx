@@ -5,18 +5,22 @@ import Link from "next/link";
 import { Radio } from "lucide-react";
 import { useLiveMatches } from "@/hooks/use-streamed";
 import { getCountdownLabel } from "@/lib/streamed/selectors";
+import { usePreferencesStore } from "@/store/preferences-store";
+import { usePathname } from "next/navigation";
 
 export function LiveTicker() {
-  const { data = [] } = useLiveMatches();
+  const pathname = usePathname();
+  const reducedMotion = usePreferencesStore((state) => state.reducedMotion);
+  const enabled = !["/settings", "/favorites", "/search"].includes(pathname);
+  
+  const { data = [] } = useLiveMatches(enabled);
   const items = data.slice(0, 14);
 
   const tickerRef = useRef<HTMLDivElement | null>(null);
 
-  // JS-controlled marquee for consistent scrolling behaviour across
-  // all `prefers-reduced-motion` settings.
   useEffect(() => {
     const el = tickerRef.current;
-    if (!el || items.length === 0) return;
+    if (!el || items.length === 0 || reducedMotion) return;
 
     let rafId: number | null = null;
     const start = performance.now();
@@ -50,7 +54,9 @@ export function LiveTicker() {
       el.style.transform = "";
       el.style.animation = prevAnimation ?? "";
     };
-  }, [items]);
+  }, [items, reducedMotion]);
+
+  if (!enabled) return null;
 
   if (items.length === 0) {
     return (
@@ -77,7 +83,7 @@ export function LiveTicker() {
             <span className="relative h-2 w-2 rounded-full bg-signal-lime">
               <span className="absolute inset-0 animate-pulse-live rounded-full bg-signal-lime" />
             </span>
-            <span className="text-signal-lime">{getCountdownLabel(match.date)}</span>
+            <span className="text-signal-lime">{getCountdownLabel(match.date, undefined, match.category)}</span>
             <span>{match.title}</span>
           </Link>
         ))}

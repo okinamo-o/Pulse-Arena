@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://pulse-arena.local"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://pulse-arena.local"),
   title: {
     default: "Pulse Arena - Live Sports Streaming Discovery",
     template: "%s - Pulse Arena"

@@ -30,22 +30,24 @@ export function useSports() {
   });
 }
 
-export function useAllMatches() {
+export function useAllMatches(enabled = true) {
   return useQuery({
     queryKey: streamedQueryKeys.allMatches,
     queryFn: async () => await getAllMatches(),
     staleTime: 30 * 60 * 1000, // 30 minutes
     gcTime: 1000 * 60 * 60 * 24, // 24 hours in idb
+    enabled,
   });
 }
 
-export function useLiveMatches() {
+export function useLiveMatches(enabled = true) {
   return useQuery({
     queryKey: streamedQueryKeys.liveMatches,
     queryFn: async () => await getLiveMatches(),
     staleTime: 15 * 1000,
     refetchInterval: 30 * 1000,
     gcTime: 1000 * 60 * 5, // live matches expire quickly
+    enabled,
   });
 }
 

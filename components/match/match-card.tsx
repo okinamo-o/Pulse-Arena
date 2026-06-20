@@ -26,7 +26,7 @@ export function MatchCard({ match, variant = "default", className }: MatchCardPr
   if (variant === "compact") {
     return (
       <Link
-        href={`/match/${match.id}`}
+        href={`/match/${encodeURIComponent(match.id)}`}
         className={cn(
           "group grid min-h-28 grid-cols-[auto_1fr_auto] items-center gap-3 rounded-xl border border-white/10 bg-white/[0.08] p-3 shadow-inner-line transition hover:-translate-y-0.5 hover:border-signal-lime/40 hover:bg-white/[0.12]",
           className
@@ -36,7 +36,7 @@ export function MatchCard({ match, variant = "default", className }: MatchCardPr
         <div className="min-w-0">
           <p className="truncate text-sm font-black uppercase text-white">{match.title}</p>
           <div className="mt-2 flex flex-wrap gap-2">
-            <CountdownChip date={match.date} />
+            <CountdownChip date={match.date} category={match.category} />
             <Badge variant="muted">{formatSportName(match.category)}</Badge>
           </div>
         </div>
@@ -56,7 +56,7 @@ export function MatchCard({ match, variant = "default", className }: MatchCardPr
       <div className="relative z-10 flex h-full flex-col">
         <div className="flex items-start justify-between gap-3">
           <div className="flex flex-wrap gap-2">
-            <CountdownChip date={match.date} />
+            <CountdownChip date={match.date} category={match.category} />
             <Badge variant={match.popular ? "hot" : "cyan"}>{formatSportName(match.category)}</Badge>
           </div>
           <div className="flex gap-2">
@@ -85,7 +85,7 @@ export function MatchCard({ match, variant = "default", className }: MatchCardPr
             </div>
             {firstSource ? (
               <Link
-                href={`/watch/${firstSource.source}/${encodeURIComponent(firstSource.id)}`}
+                href={`/watch/${encodeURIComponent(firstSource.source)}/${encodeURIComponent(firstSource.id)}`}
                 className="inline-flex h-10 items-center gap-2 rounded-lg bg-signal-lime px-3 text-sm font-black text-graphite-950 transition hover:bg-[#d6ff76]"
               >
                 Watch

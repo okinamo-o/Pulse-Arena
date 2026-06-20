@@ -141,10 +141,10 @@ export function SettingsView() {
             {/* Info badge */}
             <div className="rounded-lg border border-white/10 bg-white/[0.04] p-4">
               <h4 className="text-xs font-bold uppercase tracking-wider text-white/72 mb-1.5">
-                Local Storage Storage
+                Local Device Storage
               </h4>
               <p className="text-xs text-white/50 leading-relaxed">
-                All preferences, favorites, and match reminder configurations are stored securely inside your browser&apos;s local storage. None of this data is sent to the server.
+                All preferences, favorites, and match reminder configurations are stored locally in this browser. None of this data is sent to the server. You can reset these settings by clearing your browser site data.
               </p>
             </div>
           </div>

@@ -15,6 +15,7 @@ import { ErrorState } from "@/components/system/error-state";
 import { useAllMatches, useSports } from "@/hooks/use-streamed";
 import { useScheduleFilters } from "@/hooks/use-schedule-filters";
 import { useScheduleGrouping } from "@/hooks/use-schedule-grouping";
+import { usePreferencesStore } from "@/store/preferences-store";
 import {
   toLocalDateString,
   getUserTimeZone,
@@ -57,10 +58,15 @@ export function ScheduleView({ initialNow }: ScheduleViewProps) {
     return searchParams.get("date") || toLocalDateString(now, !mounted);
   }, [searchParams, now, mounted]);
 
+  const { selectedSport: defaultSport } = usePreferencesStore();
+
   const selectedSports = React.useMemo(() => {
     const sportsParam = searchParams.get("sports");
-    return sportsParam ? sportsParam.split(",") : [];
-  }, [searchParams]);
+    if (sportsParam) {
+      return sportsParam === "all" ? [] : sportsParam.split(",");
+    }
+    return defaultSport ? [defaultSport] : [];
+  }, [searchParams, defaultSport]);
 
   const handleSelectDate = (dateString: string) => {
     const params = new URLSearchParams(searchParams);
@@ -80,14 +86,14 @@ export function ScheduleView({ initialNow }: ScheduleViewProps) {
     if (updated.length > 0) {
       params.set("sports", updated.join(","));
     } else {
-      params.delete("sports");
+      params.set("sports", "all");
     }
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
   const handleClearFilters = () => {
     const params = new URLSearchParams(searchParams);
-    params.delete("sports");
+    params.set("sports", "all");
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
