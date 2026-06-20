@@ -29,10 +29,5 @@ export default withSentryConfig(nextConfig, {
   project: process.env.SENTRY_PROJECT,
   silent: !process.env.CI,
   widenClientFileUpload: true,
-  reactComponentAnnotation: {
-    enabled: true,
-  },
   hideSourceMaps: true,
-  disableLogger: true,
-  automaticVercelMonitors: true,
 });
