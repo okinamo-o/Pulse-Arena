@@ -10,7 +10,7 @@ const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
 export async function resolveFeedback(id: string, currentData: FeedbackReport) {
   if (!redisUrl || !redisToken) {
     console.warn("No Upstash Redis URL/Token found for resolveFeedback");
-    return { error: "Redis not configured" };
+    return { error: "Action failed: Upstash Redis is not configured. Please add UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN to your .env file to enable management features." };
   }
 
   const updatedData = { ...currentData, status: "resolved" };
@@ -38,7 +38,7 @@ export async function resolveFeedback(id: string, currentData: FeedbackReport) {
 export async function deleteFeedback(id: string) {
   if (!redisUrl || !redisToken) {
     console.warn("No Upstash Redis URL/Token found for deleteFeedback");
-    return { error: "Redis not configured" };
+    return { error: "Action failed: Upstash Redis is not configured. Please add UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN to your .env file to enable management features." };
   }
 
   try {

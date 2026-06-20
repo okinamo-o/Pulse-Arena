@@ -12,13 +12,19 @@ export function FeedbackList({ initialReports }: { initialReports: FeedbackRepor
 
   const handleResolve = (report: FeedbackReport) => {
     startTransition(async () => {
-      await resolveFeedback(report.id, report);
+      const res = await resolveFeedback(report.id, report);
+      if (res?.error) {
+        alert(res.error);
+      }
     });
   };
 
   const handleDelete = (id: string) => {
     startTransition(async () => {
-      await deleteFeedback(id);
+      const res = await deleteFeedback(id);
+      if (res?.error) {
+        alert(res.error);
+      }
     });
   };
 
