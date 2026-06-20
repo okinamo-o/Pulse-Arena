@@ -13,8 +13,8 @@ Sentry.init({
   integrations: [
     Sentry.feedbackIntegration({
       colorScheme: "dark",
-      isEmailRequired: false,
-      isNameRequired: false,
+      autoInject: true,
+      showBranding: false,
       buttonLabel: "Report Bug",
       submitButtonLabel: "Send Bug Report",
       formTitle: "Report an Issue",
