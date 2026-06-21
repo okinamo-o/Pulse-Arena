@@ -20,11 +20,13 @@ export function LiveScoreboard({ homeTeam, awayTeam, homeBadge, awayBadge, match
     queryFn: async () => {
       if (!homeTeam || !awayTeam) return null;
       const res = await fetch(`/api/stats?home=${encodeURIComponent(homeTeam)}&away=${encodeURIComponent(awayTeam)}`);
+      if (res.status === 404) throw new Error("Match not found");
       if (!res.ok) throw new Error("Failed to fetch telemetry");
       return res.json();
     },
     enabled: Boolean(homeTeam && awayTeam),
-    refetchInterval: 5000,
+    refetchInterval: (query) => query.state.error?.message === "Match not found" ? false : 5000,
+    retry: (failureCount, err) => err.message === "Match not found" ? false : failureCount < 3,
   });
 
   const displayScore = data?.score ? `${data.score.home} - ${data.score.away}` : "- - -";

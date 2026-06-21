@@ -263,15 +263,17 @@ export async function GET(request: Request) {
     });
 
   } catch (error) {
-    if (!(error instanceof Error && error.message === "Match not found on ESPN")) {
+    const isNotFound = error instanceof Error && error.message === "Match not found on ESPN";
+    
+    if (!isNotFound) {
       Sentry.captureException(error);
     }
     
     return Response.json(
-      { status: "error", reason: error instanceof Error ? error.message : "Unknown error" },
+      { status: isNotFound ? "not_found" : "error", reason: error instanceof Error ? error.message : "Unknown error" },
       {
-        status: 503,
-        headers: { "cache-control": "no-store" }
+        status: isNotFound ? 404 : 503,
+        headers: { "cache-control": isNotFound ? "public, s-maxage=60" : "no-store" }
       }
     );
   }
