@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import * as Sentry from "@sentry/nextjs";
 import { resolveSportType, findMatchOnEspn, fetchEspnSummary } from "@/lib/stats/espn-config";
 import {
