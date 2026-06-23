@@ -12,7 +12,10 @@ export function LiveDashboard() {
   const { data: allMatches = [], isLoading: matchesLoading, isError: matchesError, refetch: refetchMatches } = useTodayMatches();
   const { data: sports = [], isLoading: sportsLoading, isError: sportsError, refetch: refetchSports } = useSports();
   
-  const matches = allMatches.filter((m) => getMatchStatus(m) === "live");
+  const matches = allMatches.filter((m) => {
+    const status = getMatchStatus(m);
+    return status === "live" || status === "recent";
+  });
 
   const isLoading = matchesLoading && sportsLoading;
   const isError = (matchesError || sportsError) && (!matches.length && !sports.length);

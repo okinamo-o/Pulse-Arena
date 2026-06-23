@@ -1,7 +1,7 @@
 import type { MatchInsight, MatchStatus, NormalizedMatch, StreamedMatch, StreamedStream } from "@/lib/streamed/types";
 
 const DEFAULT_LIVE_WINDOW_MS = 135 * 60 * 1000;
-const RECENT_WINDOW_MS = 90 * 60 * 1000;
+const RECENT_WINDOW_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 export function getLiveWindowMs(category?: string) {
   if (!category) return DEFAULT_LIVE_WINDOW_MS;
