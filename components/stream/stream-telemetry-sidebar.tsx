@@ -62,7 +62,62 @@ export function StreamTelemetrySidebar({ match }: { match?: StreamedMatch }) {
         </div>
       </div>
 
-      {data?.stats ? (
+      {data?.sportType === "basketball" && data.sportStats && (
+        <div className="flex flex-col gap-3 mt-4">
+          <StatBar label="FG%" home={(data.sportStats as any).fieldGoalPct.home} away={(data.sportStats as any).fieldGoalPct.away} suffix="%" color="orange" />
+          <StatBar label="3PT%" home={(data.sportStats as any).threePointPct.home} away={(data.sportStats as any).threePointPct.away} suffix="%" color="orange" />
+          <StatBar label="Rebounds" home={(data.sportStats as any).rebounds.home} away={(data.sportStats as any).rebounds.away} color="orange" />
+          <StatBar label="Assists" home={(data.sportStats as any).assists.home} away={(data.sportStats as any).assists.away} color="orange" />
+          <StatBar label="Turnovers" home={(data.sportStats as any).turnovers.home} away={(data.sportStats as any).turnovers.away} color="orange" invert />
+        </div>
+      )}
+
+      {data?.sportType === "tennis" && data.sportStats && (
+        <div className="flex flex-col gap-3 mt-4">
+          <StatBar label="Aces" home={(data.sportStats as any).aces.home} away={(data.sportStats as any).aces.away} color="emerald" />
+          <StatBar label="Double Faults" home={(data.sportStats as any).doubleFaults.home} away={(data.sportStats as any).doubleFaults.away} color="emerald" invert />
+          <StatBar label="1st Serve %" home={(data.sportStats as any).firstServePct.home} away={(data.sportStats as any).firstServePct.away} suffix="%" color="emerald" />
+          <StatBar label="Break Points" home={(data.sportStats as any).breakPointsWon.home} away={(data.sportStats as any).breakPointsWon.away} color="emerald" />
+        </div>
+      )}
+
+      {data?.sportType === "hockey" && data.sportStats && (
+        <div className="flex flex-col gap-3 mt-4">
+          <StatBar label="Shots" home={(data.sportStats as any).shots.home} away={(data.sportStats as any).shots.away} color="sky" />
+          <StatBar label="Power Play %" home={(data.sportStats as any).powerPlayPct.home} away={(data.sportStats as any).powerPlayPct.away} suffix="%" color="sky" />
+          <StatBar label="Saves" home={(data.sportStats as any).saves.home} away={(data.sportStats as any).saves.away} color="sky" />
+          <StatBar label="Hits" home={(data.sportStats as any).hits.home} away={(data.sportStats as any).hits.away} color="sky" />
+        </div>
+      )}
+
+      {data?.sportType === "baseball" && data.sportStats && (
+        <div className="flex flex-col gap-3 mt-4">
+          <StatBar label="Hits" home={(data.sportStats as any).hits.home} away={(data.sportStats as any).hits.away} color="amber" />
+          <StatBar label="Errors" home={(data.sportStats as any).errors.home} away={(data.sportStats as any).errors.away} color="amber" invert />
+          <StatBar label="Home Runs" home={(data.sportStats as any).homeRuns.home} away={(data.sportStats as any).homeRuns.away} color="amber" />
+          <StatBar label="Batting Avg" home={(data.sportStats as any).battingAvg.home} away={(data.sportStats as any).battingAvg.away} color="amber" />
+        </div>
+      )}
+
+      {data?.sportType === "cricket" && data.sportStats && (
+        <div className="flex flex-col gap-3 mt-4">
+          <StatBar label="Wickets" home={(data.sportStats as any).wickets.home} away={(data.sportStats as any).wickets.away} color="green" invert />
+          <StatBar label="Overs" home={(data.sportStats as any).overs.home} away={(data.sportStats as any).overs.away} color="green" />
+          <StatBar label="Run Rate" home={(data.sportStats as any).runRate.home} away={(data.sportStats as any).runRate.away} color="green" />
+          <StatBar label="Boundaries" home={(data.sportStats as any).boundaries.home} away={(data.sportStats as any).boundaries.away} color="green" />
+        </div>
+      )}
+
+      {data?.sportType === "american-football" && data.sportStats && (
+        <div className="flex flex-col gap-3 mt-4">
+          <StatBar label="Total Yards" home={(data.sportStats as any).totalYards.home} away={(data.sportStats as any).totalYards.away} color="blue" />
+          <StatBar label="Pass Yards" home={(data.sportStats as any).passingYards.home} away={(data.sportStats as any).passingYards.away} color="blue" />
+          <StatBar label="Rush Yards" home={(data.sportStats as any).rushingYards.home} away={(data.sportStats as any).rushingYards.away} color="blue" />
+          <StatBar label="Turnovers" home={(data.sportStats as any).turnovers.home} away={(data.sportStats as any).turnovers.away} color="blue" invert />
+        </div>
+      )}
+
+      {data?.sportType === "football" && data.stats && (
         <div className="flex flex-col gap-3 mt-4">
           <StatBar label="Possession" home={data.stats.possession.home} away={data.stats.possession.away} suffix="%" />
           <StatBar label="Shots on Target" home={data.stats.shotsOnTarget.home} away={data.stats.shotsOnTarget.away} />
@@ -71,7 +126,9 @@ export function StreamTelemetrySidebar({ match }: { match?: StreamedMatch }) {
           <StatBar label="Yellow Cards" home={data.stats.yellowCards.home} away={data.stats.yellowCards.away} />
           <StatBar label="Red Cards" home={data.stats.redCards.home} away={data.stats.redCards.away} />
         </div>
-      ) : (
+      )}
+
+      {!data?.stats && !data?.sportStats && (
         <div className="flex flex-col items-center justify-center py-6 text-center mt-4 border-t border-white/5">
           <Activity className="h-6 w-6 text-white/10 mb-2 animate-pulse" />
           <p className="text-[0.65rem] text-white/40 uppercase tracking-wider font-bold">Awaiting Data</p>
@@ -81,10 +138,25 @@ export function StreamTelemetrySidebar({ match }: { match?: StreamedMatch }) {
   );
 }
 
-function StatBar({ label, home, away, suffix = "" }: { label: string; home: number; away: number; suffix?: string }) {
+function StatBar({ label, home, away, suffix = "", color = "lime", invert = false }: { 
+  label: string; home: number; away: number; suffix?: string; color?: string; invert?: boolean;
+}) {
   const total = home + away;
   const homePercent = total > 0 ? (home / total) * 100 : 50;
-  const awayPercent = total > 0 ? (away / total) * 100 : 50;
+  
+  const getColors = () => {
+    switch (color) {
+      case "orange": return { h: "bg-orange-500", a: "bg-cyan-500" };
+      case "emerald": return { h: "bg-emerald-500", a: "bg-yellow-500" };
+      case "sky": return { h: "bg-sky-400", a: "bg-red-400" };
+      case "amber": return { h: "bg-amber-500", a: "bg-red-500" };
+      case "green": return { h: "bg-green-500", a: "bg-blue-500" };
+      case "blue": return { h: "bg-blue-500", a: "bg-red-500" };
+      default: return { h: "bg-signal-lime", a: "bg-signal-blue" };
+    }
+  };
+  
+  const colors = getColors();
 
   return (
     <div>
@@ -94,8 +166,8 @@ function StatBar({ label, home, away, suffix = "" }: { label: string; home: numb
         <span>{away}{suffix}</span>
       </div>
       <div className="flex h-1.5 rounded-full overflow-hidden bg-white/10">
-        <div className="bg-signal-lime h-full transition-all duration-1000" style={{ width: `${homePercent}%` }} />
-        <div className="bg-signal-blue h-full transition-all duration-1000" style={{ width: `${awayPercent}%` }} />
+        <div className={`${colors.h} h-full transition-all duration-1000`} style={{ width: `${invert ? 100 - homePercent : homePercent}%` }} />
+        <div className={`${colors.a} h-full transition-all duration-1000`} style={{ width: `${invert ? homePercent : 100 - homePercent}%` }} />
       </div>
     </div>
   );

@@ -12,50 +12,68 @@ interface LiveScoreboardProps {
   homeBadge?: string;
   awayBadge?: string;
   matchDate: number;
+  category?: string;
 }
 
-export function LiveScoreboard({ homeTeam, awayTeam, homeBadge, awayBadge, matchDate }: LiveScoreboardProps) {
+export function LiveScoreboard({ homeTeam, awayTeam, homeBadge, awayBadge, matchDate, category = "football" }: LiveScoreboardProps) {
   const { data } = useQuery<ComprehensiveMatchData>({
-    queryKey: ["streamed", "telemetry", homeTeam, awayTeam],
+    queryKey: ["streamed", "telemetry", homeTeam, awayTeam, category],
     queryFn: async () => {
       if (!homeTeam || !awayTeam) return null;
-      const res = await fetch(`/api/stats?home=${encodeURIComponent(homeTeam)}&away=${encodeURIComponent(awayTeam)}`);
+      const res = await fetch(
+        `/api/stats?home=${encodeURIComponent(homeTeam)}&away=${encodeURIComponent(awayTeam)}&category=${encodeURIComponent(category)}`
+      );
       if (res.status === 404) throw new Error("Match not found");
       if (!res.ok) throw new Error("Failed to fetch telemetry");
       return res.json();
     },
     enabled: Boolean(homeTeam && awayTeam),
-    refetchInterval: (query) => query.state.error?.message === "Match not found" ? false : 5000,
-    retry: (failureCount, err) => err.message === "Match not found" ? false : failureCount < 3,
+    refetchInterval: (query) => (query.state.error?.message === "Match not found" ? false : 5000),
+    retry: (failureCount, err) => (err.message === "Match not found" ? false : failureCount < 3),
   });
 
   const displayScore = data?.score ? `${data.score.home} - ${data.score.away}` : "- - -";
   const displayStatus = data?.score?.status || "AWAITING";
+  const isTennis = data?.sportType === "tennis";
 
   return (
     <GlassPanel className="p-8 flex flex-col items-center justify-center">
       <p className="text-sm font-bold text-white/50 mb-6" suppressHydrationWarning>
-        {new Date(matchDate).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+        {new Date(matchDate).toLocaleString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}
       </p>
       <div className="flex items-center justify-center gap-12 w-full max-w-2xl">
         <div className="flex flex-col items-center gap-4">
           <TeamBadge name={homeTeam} badge={homeBadge} size="xl" className="shadow-panel bg-white/5" />
-          <span className="font-bold text-lg text-white">{homeTeam}</span>
+          <span className="font-bold text-lg text-white">{isTennis ? "Player 1" : homeTeam}</span>
+          {isTennis && <span className="text-xs text-white/50">{homeTeam}</span>}
         </div>
 
         <div className="flex flex-col items-center gap-2">
-          <div 
-            className="font-display font-black text-6xl text-white tracking-widest whitespace-nowrap"
-            suppressHydrationWarning
-          >
+          <div className="font-display font-black text-6xl text-white tracking-widest whitespace-nowrap" suppressHydrationWarning>
             {displayScore}
           </div>
           <span className="font-bold text-sm text-signal-lime uppercase tracking-widest mt-2">{displayStatus}</span>
+
+          {/* Period breakdown */}
+          {data?.periods && data.periods.length > 0 && (
+            <div className="flex gap-2 mt-3">
+              {data.periods.map((p) => (
+                <div key={p.label} className="flex flex-col items-center">
+                  <span className="text-[9px] font-bold uppercase text-white/30 mb-1">{p.label}</span>
+                  <div className="flex flex-col gap-0.5 text-center">
+                    <span className="font-mono text-[11px] font-bold text-white/70">{p.home}</span>
+                    <span className="font-mono text-[11px] font-bold text-white/40">{p.away}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="flex flex-col items-center gap-4">
           <TeamBadge name={awayTeam} badge={awayBadge} size="xl" className="shadow-panel bg-white/5" />
-          <span className="font-bold text-lg text-white">{awayTeam}</span>
+          <span className="font-bold text-lg text-white">{isTennis ? "Player 2" : awayTeam}</span>
+          {isTennis && <span className="text-xs text-white/50">{awayTeam}</span>}
         </div>
       </div>
     </GlassPanel>

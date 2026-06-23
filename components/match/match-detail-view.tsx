@@ -90,12 +90,13 @@ export function MatchDetailView({ match, related }: MatchDetailViewProps) {
           awayTeam={participants.away} 
           homeBadge={match.teams?.home?.badge}
           awayBadge={match.teams?.away?.badge}
-          matchDate={match.date} 
+          matchDate={match.date}
+          category={match.category}
         />
       </section>
 
       <section className="container-page mt-8">
-        <MatchAnalyticsTabs homeTeam={participants.home} awayTeam={participants.away} />
+        <MatchAnalyticsTabs homeTeam={participants.home} awayTeam={participants.away} category={match.category} />
       </section>
 
       {related.length > 0 ? (

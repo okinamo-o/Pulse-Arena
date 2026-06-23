@@ -88,6 +88,80 @@ export interface MatchStats {
   redCards: { home: number; away: number };
 }
 
+/* ── Basketball ── */
+export interface BasketballStats {
+  fieldGoalPct: { home: number; away: number };
+  threePointPct: { home: number; away: number };
+  freeThrowPct: { home: number; away: number };
+  rebounds: { home: number; away: number };
+  assists: { home: number; away: number };
+  steals: { home: number; away: number };
+  blocks: { home: number; away: number };
+  turnovers: { home: number; away: number };
+}
+
+/* ── Tennis ── */
+export interface TennisStats {
+  aces: { home: number; away: number };
+  doubleFaults: { home: number; away: number };
+  firstServePct: { home: number; away: number };
+  breakPointsWon: { home: number; away: number };
+  winners: { home: number; away: number };
+  unforcedErrors: { home: number; away: number };
+}
+
+/* ── Hockey ── */
+export interface HockeyStats {
+  shots: { home: number; away: number };
+  powerPlayPct: { home: number; away: number };
+  penaltyMinutes: { home: number; away: number };
+  faceoffPct: { home: number; away: number };
+  saves: { home: number; away: number };
+  hits: { home: number; away: number };
+}
+
+/* ── Baseball ── */
+export interface BaseballStats {
+  runs: { home: number; away: number };
+  hits: { home: number; away: number };
+  errors: { home: number; away: number };
+  homeRuns: { home: number; away: number };
+  rbi: { home: number; away: number };
+  battingAvg: { home: number; away: number };
+}
+
+/* ── Cricket ── */
+export interface CricketStats {
+  runs: { home: number; away: number };
+  wickets: { home: number; away: number };
+  overs: { home: number; away: number };
+  runRate: { home: number; away: number };
+  boundaries: { home: number; away: number };
+  extras: { home: number; away: number };
+}
+
+/* ── American Football ── */
+export interface AmericanFootballStats {
+  totalYards: { home: number; away: number };
+  passingYards: { home: number; away: number };
+  rushingYards: { home: number; away: number };
+  turnovers: { home: number; away: number };
+  timeOfPossession: { home: string; away: string };
+  firstDowns: { home: number; away: number };
+  sacks: { home: number; away: number };
+}
+
+export type SportStats =
+  | MatchStats
+  | BasketballStats
+  | TennisStats
+  | HockeyStats
+  | BaseballStats
+  | CricketStats
+  | AmericanFootballStats;
+
+export type SportType = "football" | "basketball" | "tennis" | "hockey" | "baseball" | "cricket" | "american-football" | "unknown";
+
 export interface Player {
   id: string;
   name: string;
@@ -115,17 +189,31 @@ export interface StandingsRow {
   form: ('W' | 'D' | 'L')[];
 }
 
+/** Period / Quarter / Set / Inning score breakdown */
+export interface PeriodScore {
+  label: string;   // "Q1", "Set 1", "1st", "Inn 1", etc.
+  home: string;
+  away: string;
+}
+
 export interface ComprehensiveMatchData {
+  sportType: SportType;
   score?: {
     home: string;
     away: string;
     status: string;
   };
+  /** Period-level breakdown (quarters, sets, innings, periods) */
+  periods?: PeriodScore[];
   events: MatchEvent[];
+  /** Football-specific stats (kept for backward compat) */
   stats?: MatchStats;
+  /** Generic sport stats for non-football sports */
+  sportStats?: SportStats;
   lineups?: {
     home: Lineup;
     away: Lineup;
   };
   standings?: StandingsRow[];
 }
+
