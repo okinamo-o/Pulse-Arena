@@ -110,9 +110,9 @@ body::after {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  *:not(.animate-ticker),
+  *:not(.animate-ticker)::before,
+  *:not(.animate-ticker)::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
