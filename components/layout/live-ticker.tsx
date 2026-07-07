@@ -29,7 +29,7 @@ export function LiveTicker() {
   }
 
   return (
-    <div className="fixed left-0 right-0 top-16 z-30 flex overflow-hidden border-b border-white/10 bg-graphite-900/72 backdrop-blur-xl">
+    <div className="fixed left-0 right-0 top-16 z-30 overflow-hidden border-b border-white/10 bg-graphite-900/72 backdrop-blur-xl">
       <div 
         className={`flex h-9 w-max will-change-transform ${reducedMotion ? "" : "animate-ticker"}`}
         style={{ animationDuration: "40s" }}
