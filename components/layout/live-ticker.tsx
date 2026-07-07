@@ -28,24 +28,43 @@ export function LiveTicker() {
     );
   }
 
-  const marquee = [...items, ...items];
-
   return (
-    <div className="fixed left-0 right-0 top-16 z-30 overflow-hidden border-b border-white/10 bg-graphite-900/72 backdrop-blur-xl">
-      <div className={`flex h-9 w-max items-center gap-6 px-4 will-change-transform ${reducedMotion ? "" : "animate-ticker"}`}>
-        {marquee.map((match, index) => (
-          <Link
-            key={`${match.id}-${index}`}
-            href={`/match/${match.id}`}
-            className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.13em] text-white/72 transition hover:text-white"
-          >
-            <span className="relative h-2 w-2 rounded-full bg-signal-lime">
-              <span className="absolute inset-0 animate-pulse-live rounded-full bg-signal-lime" />
-            </span>
-            <span className="text-signal-lime">{getCountdownLabel(match.date, undefined, match.category)}</span>
-            <span>{match.title}</span>
-          </Link>
-        ))}
+    <div className="fixed left-0 right-0 top-16 z-30 flex overflow-hidden border-b border-white/10 bg-graphite-900/72 backdrop-blur-xl">
+      <div 
+        className={`flex h-9 w-max will-change-transform ${reducedMotion ? "" : "animate-ticker"}`}
+        style={{ animationDuration: "40s" }}
+      >
+        <div className="flex w-max items-center gap-6 px-3">
+          {items.map((match, index) => (
+            <Link
+              key={`ticker-a-${match.id}-${index}`}
+              href={`/match/${match.id}`}
+              className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.13em] text-white/72 transition hover:text-white"
+            >
+              <span className="relative h-2 w-2 rounded-full bg-signal-lime">
+                <span className="absolute inset-0 animate-pulse-live rounded-full bg-signal-lime" />
+              </span>
+              <span className="text-signal-lime">{getCountdownLabel(match.date, undefined, match.category)}</span>
+              <span>{match.title}</span>
+            </Link>
+          ))}
+        </div>
+        <div className="flex w-max items-center gap-6 px-3" aria-hidden="true">
+          {items.map((match, index) => (
+            <Link
+              key={`ticker-b-${match.id}-${index}`}
+              href={`/match/${match.id}`}
+              tabIndex={-1}
+              className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.13em] text-white/72 transition hover:text-white"
+            >
+              <span className="relative h-2 w-2 rounded-full bg-signal-lime">
+                <span className="absolute inset-0 animate-pulse-live rounded-full bg-signal-lime" />
+              </span>
+              <span className="text-signal-lime">{getCountdownLabel(match.date, undefined, match.category)}</span>
+              <span>{match.title}</span>
+            </Link>
+          ))}
+        </div>
       </div>
     </div>
   );
