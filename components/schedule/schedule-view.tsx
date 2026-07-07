@@ -50,8 +50,31 @@ export function ScheduleView({ initialNow }: ScheduleViewProps) {
   React.useEffect(() => {
     setMounted(true);
     setNow(Date.now());
-    const timer = window.setInterval(() => setNow(Date.now()), 30000);
-    return () => window.clearInterval(timer);
+    
+    let timer: number;
+    function startInterval() {
+      timer = window.setInterval(() => setNow(Date.now()), 60000);
+    }
+    
+    function stopInterval() {
+      window.clearInterval(timer);
+    }
+    
+    startInterval();
+    
+    function handleVisibility() {
+      if (document.hidden) stopInterval();
+      else {
+        setNow(Date.now());
+        startInterval();
+      }
+    }
+    
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => {
+      stopInterval();
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
   }, []);
 
   const selectedDate = React.useMemo(() => {

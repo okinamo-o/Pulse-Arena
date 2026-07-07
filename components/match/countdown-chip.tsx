@@ -4,19 +4,12 @@ import * as React from "react";
 import { Clock, Radio } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { getCountdownLabel, getMatchStatus } from "@/lib/streamed/selectors";
+import { useNow } from "@/hooks/use-now";
 
 export function CountdownChip({ date, category = "" }: { date: number, category?: string }) {
-  const [mounted, setMounted] = React.useState(false);
-  const [now, setNow] = React.useState(0);
+  const now = useNow();
 
-  React.useEffect(() => {
-    setMounted(true);
-    setNow(Date.now());
-    const timer = window.setInterval(() => setNow(Date.now()), 30000);
-    return () => window.clearInterval(timer);
-  }, []);
-
-  if (!mounted) {
+  if (now === 0) {
     return (
       <Badge variant="cyan">
         <Clock className="h-3.5 w-3.5" aria-hidden="true" />

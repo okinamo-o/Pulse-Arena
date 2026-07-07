@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import Link from "next/link";
 import { ArrowUpRight, Radio } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -18,7 +19,7 @@ interface MatchCardProps {
   className?: string;
 }
 
-export function MatchCard({ match, variant = "default", className }: MatchCardProps) {
+export const MatchCard = React.memo(function MatchCard({ match, variant = "default", className }: MatchCardProps) {
   const participants = getMatchParticipants(match);
   const heat = getHeatScore(match);
   const firstSource = match.sources[0];
@@ -100,4 +101,4 @@ export function MatchCard({ match, variant = "default", className }: MatchCardPr
       </div>
     </article>
   );
-}
+});
