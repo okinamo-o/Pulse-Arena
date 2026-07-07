@@ -122,7 +122,9 @@ export async function findMatchOnEspn(
  */
 export async function fetchEspnSummary(gameId: string, sportPath: string): Promise<any> {
   const t = Math.floor(Date.now() / 5000);
-  const summaryUrl = `https://site.api.espn.com/apis/site/v2/sports/${sportPath}/summary?event=${gameId}&_=${t}`;
+  const safePath = encodeURIComponent(sportPath).replace(/%2F/g, "/"); // preserve existing slashes if any
+  const safeGameId = encodeURIComponent(gameId);
+  const summaryUrl = `https://site.api.espn.com/apis/site/v2/sports/${safePath}/summary?event=${safeGameId}&_=${t}`;
   const summaryRes = await fetch(summaryUrl, {
     next: { revalidate: 5 },
     signal: AbortSignal.timeout(8000),

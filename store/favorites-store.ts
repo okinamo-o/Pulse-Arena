@@ -1,7 +1,8 @@
 "use client";
 
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, createJSONStorage } from "zustand/middleware";
+import { idbStorage } from "./idb-storage";
 
 interface FavoritesState {
   favoriteMatchIds: string[];
@@ -33,7 +34,8 @@ export const useFavoritesStore = create<FavoritesState>()(
       isSportFavorite: (sport) => get().favoriteSports.includes(sport)
     }),
     {
-      name: "pulse-arena-favorites"
+      name: "pulse-arena-favorites",
+      storage: createJSONStorage(() => idbStorage)
     }
   )
 );

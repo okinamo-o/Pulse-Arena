@@ -9,12 +9,12 @@ import { LiveTicker } from "@/components/layout/live-ticker";
 import { Footer } from "@/components/layout/footer";
 import { DegradedModeBanner } from "@/components/system/degraded-banner";
 import { FeedbackWidget } from "@/components/system/feedback-widget";
-import { useAllMatches } from "@/hooks/use-streamed";
+import { useTodayMatches } from "@/hooks/use-streamed";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const enabled = !["/settings", "/favorites", "/search"].includes(pathname);
-  const { isError, dataUpdatedAt, data } = useAllMatches(enabled);
+  const { isError, dataUpdatedAt, data } = useTodayMatches(enabled);
 
   const isDegraded = isError && data && data.length > 0;
 

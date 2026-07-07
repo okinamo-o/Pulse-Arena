@@ -17,11 +17,34 @@ export function ScheduleHero({ matches }: ScheduleHeroProps) {
   const [fastNow, setFastNow] = React.useState(Date.now());
 
   React.useEffect(() => {
-    const slow = window.setInterval(() => setSlowNow(Date.now()), 5000);
-    const fast = window.setInterval(() => setFastNow(Date.now()), 1000);
-    return () => {
+    let slow: number;
+    let fast: number;
+
+    function startIntervals() {
+      slow = window.setInterval(() => setSlowNow(Date.now()), 5000);
+      fast = window.setInterval(() => setFastNow(Date.now()), 1000);
+    }
+
+    function stopIntervals() {
       window.clearInterval(slow);
       window.clearInterval(fast);
+    }
+
+    startIntervals();
+
+    function handleVisibility() {
+      if (document.hidden) stopIntervals();
+      else {
+        setSlowNow(Date.now());
+        setFastNow(Date.now());
+        startIntervals();
+      }
+    }
+
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => {
+      stopIntervals();
+      document.removeEventListener("visibilitychange", handleVisibility);
     };
   }, []);
 
@@ -119,7 +142,7 @@ export function ScheduleHero({ matches }: ScheduleHeroProps) {
                 <span className="font-mono text-xs font-bold uppercase tracking-widest">Countdown</span>
               </div>
               <div className="mt-4 h-9 flex items-center">
-                <p className="font-mono text-lg font-black text-white tracking-tight leading-none truncate w-full">
+                <p suppressHydrationWarning className="font-mono text-lg font-black text-white tracking-tight leading-none truncate w-full">
                   {countdownText}
                 </p>
               </div>

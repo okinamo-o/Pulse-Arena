@@ -1,7 +1,8 @@
 "use client";
 
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, createJSONStorage } from "zustand/middleware";
+import { idbStorage } from "./idb-storage";
 
 interface PreferencesState {
   reducedMotion: boolean;
@@ -30,7 +31,8 @@ export const usePreferencesStore = create<PreferencesState>()(
       clearRecentSearches: () => set({ recentSearches: [] })
     }),
     {
-      name: "pulse-arena-preferences"
+      name: "pulse-arena-preferences",
+      storage: createJSONStorage(() => idbStorage)
     }
   )
 );

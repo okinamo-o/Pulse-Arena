@@ -1,7 +1,8 @@
 "use client";
 
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, createJSONStorage } from "zustand/middleware";
+import { idbStorage } from "./idb-storage";
 
 export interface MatchReminder {
   matchId: string;
@@ -42,7 +43,8 @@ export const useRemindersStore = create<RemindersState>()(
       hasReminder: (matchId) => get().reminders.some((reminder) => reminder.matchId === matchId)
     }),
     {
-      name: "pulse-arena-reminders"
+      name: "pulse-arena-reminders",
+      storage: createJSONStorage(() => idbStorage)
     }
   )
 );

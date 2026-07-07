@@ -85,11 +85,15 @@ export async function getStreams(source: string, id: string): Promise<StreamedSt
 
 export const getMatchById = cache(async (id: string): Promise<StreamedMatch | undefined> => {
   const [today, live, all] = await Promise.allSettled([getTodayMatches(), getLiveMatches(), getAllMatches()]);
-  const pools = [today, live, all]
-    .filter((result): result is PromiseFulfilledResult<StreamedMatch[]> => result.status === "fulfilled")
-    .flatMap((result) => result.value);
+  
+  const check = (result: PromiseSettledResult<StreamedMatch[]>) => {
+    if (result.status === "fulfilled") {
+      return result.value.find((match) => match.id === id || match.sources.some((source) => source.id === id));
+    }
+    return undefined;
+  };
 
-  return pools.find((match) => match.id === id || match.sources.some((source) => source.id === id));
+  return check(live) || check(today) || check(all);
 });
 
 export function streamedAssetUrl(path?: string) {

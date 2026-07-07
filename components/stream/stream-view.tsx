@@ -22,6 +22,7 @@ export function StreamView({ id, streams, match, related }: StreamViewProps) {
   const [active, setActive] = React.useState(streams[0]);
   const activeStream = active ?? streams[0];
   const router = useRouter();
+  const iframeRef = React.useRef<HTMLIFrameElement>(null);
 
   React.useEffect(() => {
     setActive(streams[0]);
@@ -37,11 +38,10 @@ export function StreamView({ id, streams, match, related }: StreamViewProps) {
 
       if (key === "f") {
         event.preventDefault();
-        const iframe = document.querySelector("iframe");
         if (document.fullscreenElement) {
           document.exitFullscreen?.();
         } else {
-          iframe?.requestFullscreen?.();
+          iframeRef.current?.requestFullscreen?.();
         }
       }
 
@@ -88,7 +88,7 @@ export function StreamView({ id, streams, match, related }: StreamViewProps) {
                 size="icon"
                 variant="secondary"
                 aria-label="Open fullscreen"
-                onClick={() => document.querySelector("iframe")?.requestFullscreen?.()}
+                onClick={() => iframeRef.current?.requestFullscreen?.()}
               >
                 <Maximize className="h-4 w-4" aria-hidden="true" />
               </Button>
@@ -96,6 +96,7 @@ export function StreamView({ id, streams, match, related }: StreamViewProps) {
             <div className="aspect-video bg-graphite-950">
               {activeStream ? (
                 <iframe
+                  ref={iframeRef}
                   key={activeStream.embedUrl}
                   src={activeStream.embedUrl}
                   title={`${match?.title ?? "Live sports"} stream ${activeStream.streamNo}`}

@@ -51,12 +51,13 @@ export function useLiveMatches(enabled = true) {
   });
 }
 
-export function useTodayMatches() {
+export function useTodayMatches(enabled = true) {
   return useQuery({
     queryKey: streamedQueryKeys.todayMatches,
     queryFn: async () => await getTodayMatches(),
     staleTime: 60 * 1000,
     gcTime: 1000 * 60 * 60 * 24,
+    enabled,
   });
 }
 
