@@ -23,7 +23,7 @@ export function MobileNavigation() {
       aria-label="Mobile navigation"
       className="fixed bottom-0 left-0 right-0 z-40 border-t border-white/10 bg-graphite-950/86 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-2xl md:hidden"
     >
-      <div className="grid grid-cols-7 gap-1">
+      <div className="flex items-center gap-1 overflow-x-auto no-scrollbar snap-x">
         {items.map((item) => {
           const Icon = item.icon;
           const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
@@ -33,7 +33,7 @@ export function MobileNavigation() {
               href={item.href}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "flex min-h-12 flex-col items-center justify-center gap-1 rounded-lg text-[0.66rem] font-bold text-white/50 transition",
+                "flex min-w-[4rem] flex-1 shrink-0 snap-center flex-col items-center justify-center gap-1 rounded-lg min-h-12 text-[0.66rem] font-bold text-white/50 transition",
                 active && "bg-white/[0.08] text-white"
               )}
             >

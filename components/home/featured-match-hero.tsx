@@ -45,7 +45,7 @@ export function FeaturedMatchHero({ match }: FeaturedMatchHeroProps) {
             <Badge variant="cyan">{formatSportName(match.category)}</Badge>
             {match.popular ? <Badge variant="hot">Heat index rising</Badge> : null}
           </div>
-          <h1 className="max-w-5xl text-balance font-display text-5xl font-black uppercase leading-[0.9] text-white md:text-7xl xl:text-8xl">
+          <h1 className="max-w-5xl text-balance font-display text-4xl font-black uppercase leading-[0.9] text-white sm:text-5xl md:text-7xl xl:text-8xl">
             {match.title}
           </h1>
           <p className="mt-5 max-w-2xl text-base font-medium leading-7 text-white/64 md:text-lg">
@@ -85,15 +85,15 @@ export function FeaturedMatchHero({ match }: FeaturedMatchHeroProps) {
                 {match.sources.length} feeds
               </span>
             </div>
-            <div className="my-10 flex items-center justify-center gap-5">
+            <div className="my-10 flex items-center justify-center gap-2 sm:gap-5">
               <motion.div animate={reducedMotion ? {} : { y: [0, -8, 0] }} transition={{ duration: 5, repeat: Infinity }}>
-                <TeamBadge name={participants.home} badge={match.teams?.home?.badge} size="xl" />
+                <TeamBadge name={participants.home} badge={match.teams?.home?.badge} className="h-20 w-20 text-lg sm:h-28 sm:w-28 sm:text-2xl" />
               </motion.div>
-              <div className="rounded-full border border-white/10 bg-black/35 px-4 py-2 font-mono text-sm font-black text-white/58">
+              <div className="rounded-full border border-white/10 bg-black/35 px-3 py-1.5 sm:px-4 sm:py-2 font-mono text-xs sm:text-sm font-black text-white/58">
                 VS
               </div>
               <motion.div animate={reducedMotion ? {} : { y: [0, 8, 0] }} transition={{ duration: 5.5, repeat: Infinity }}>
-                <TeamBadge name={participants.away} badge={match.teams?.away?.badge} size="xl" />
+                <TeamBadge name={participants.away} badge={match.teams?.away?.badge} className="h-20 w-20 text-lg sm:h-28 sm:w-28 sm:text-2xl" />
               </motion.div>
             </div>
             <MomentumMeter match={match} />
