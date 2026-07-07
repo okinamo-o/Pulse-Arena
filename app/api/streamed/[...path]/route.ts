@@ -12,15 +12,12 @@ export async function GET(_request: Request, context: { params: Promise<{ path: 
 
   const upstreamPath = path.map((part) => encodeURIComponent(part).replace(/%2E/gi, ".").replace(/%2D/gi, "-").replace(/%5F/gi, "_")).join("/");
   
-  // Append a cache-busting timestamp to bypass upstream CDN caching
-  const t = Math.floor(Date.now() / 30000); 
-  const separator = upstreamPath.includes("?") ? "&" : "?";
-  const upstream = `${STREAMED_ORIGIN}/api/${upstreamPath}${separator}_=${t}`;
+  const upstream = `${STREAMED_ORIGIN}/api/${upstreamPath}`;
   
   try {
     const response = await fetch(upstream, {
       next: { revalidate },
-      signal: AbortSignal.timeout(8000),
+      signal: AbortSignal.timeout(15000),
       headers: {
         accept: "application/json"
       }
