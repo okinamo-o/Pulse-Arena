@@ -47,7 +47,7 @@ export function FeedbackWidget() {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-signal-lime text-graphite-950 shadow-lg transition-transform hover:scale-105 active:scale-95"
+        className="fixed bottom-24 right-6 md:bottom-6 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-signal-lime text-graphite-950 shadow-lg transition-transform hover:scale-105 active:scale-95"
         aria-label="Report a bug or send feedback"
       >
         <MessageSquarePlus className="h-5 w-5" />
