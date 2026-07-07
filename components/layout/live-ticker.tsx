@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { Radio } from "lucide-react";
 import { useLiveMatches } from "@/hooks/use-streamed";
@@ -15,46 +14,6 @@ export function LiveTicker() {
   
   const { data = [] } = useLiveMatches(enabled);
   const items = data.slice(0, 14);
-
-  const tickerRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    const el = tickerRef.current;
-    if (!el || items.length === 0 || reducedMotion) return;
-
-    let rafId: number | null = null;
-    const start = performance.now();
-    const duration = 30000; // one full loop in ms
-
-    const measure = () => Math.max(1, el.scrollWidth / 2);
-    let loopWidth = measure();
-
-    const onResize = () => {
-      loopWidth = measure();
-    };
-    window.addEventListener("resize", onResize);
-
-    // Disable any CSS animation so only JS controls motion
-    const prevAnimation = el.style.animation;
-    el.style.animation = "none";
-
-    const step = (now: number) => {
-      const elapsed = now - start;
-      const progress = (elapsed % duration) / duration;
-      const offset = progress * loopWidth;
-      el.style.transform = `translateX(${-offset}px)`;
-      rafId = requestAnimationFrame(step);
-    };
-
-    rafId = requestAnimationFrame(step);
-
-    return () => {
-      if (rafId != null) cancelAnimationFrame(rafId);
-      window.removeEventListener("resize", onResize);
-      el.style.transform = "";
-      el.style.animation = prevAnimation ?? "";
-    };
-  }, [items, reducedMotion]);
 
   if (!enabled) return null;
 
@@ -73,7 +32,7 @@ export function LiveTicker() {
 
   return (
     <div className="fixed left-0 right-0 top-16 z-30 overflow-hidden border-b border-white/10 bg-graphite-900/72 backdrop-blur-xl">
-      <div ref={tickerRef} className="flex h-9 w-max items-center gap-6 px-4 will-change-transform">
+      <div className={`flex h-9 w-max items-center gap-6 px-4 will-change-transform ${reducedMotion ? "" : "animate-ticker"}`}>
         {marquee.map((match, index) => (
           <Link
             key={`${match.id}-${index}`}
