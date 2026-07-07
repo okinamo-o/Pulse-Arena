@@ -6,9 +6,11 @@ import { useLiveMatches } from "@/hooks/use-streamed";
 import { getCountdownLabel } from "@/lib/streamed/selectors";
 import { usePreferencesStore } from "@/store/preferences-store";
 import { usePathname } from "next/navigation";
+import { useNow } from "@/hooks/use-now";
 
 export function LiveTicker() {
   const pathname = usePathname();
+  const now = useNow();
   const reducedMotion = usePreferencesStore((state) => state.reducedMotion);
   const enabled = !["/settings", "/favorites", "/search"].includes(pathname);
   
@@ -44,7 +46,7 @@ export function LiveTicker() {
               <span className="relative h-2 w-2 rounded-full bg-signal-lime">
                 <span className="absolute inset-0 animate-pulse-live rounded-full bg-signal-lime" />
               </span>
-              <span className="text-signal-lime">{getCountdownLabel(match.date, undefined, match.category)}</span>
+              <span className="text-signal-lime">{now === 0 ? "SCANNING..." : getCountdownLabel(match.date, now, match.category)}</span>
               <span>{match.title}</span>
             </Link>
           ))}
@@ -60,7 +62,7 @@ export function LiveTicker() {
               <span className="relative h-2 w-2 rounded-full bg-signal-lime">
                 <span className="absolute inset-0 animate-pulse-live rounded-full bg-signal-lime" />
               </span>
-              <span className="text-signal-lime">{getCountdownLabel(match.date, undefined, match.category)}</span>
+              <span className="text-signal-lime">{now === 0 ? "SCANNING..." : getCountdownLabel(match.date, now, match.category)}</span>
               <span>{match.title}</span>
             </Link>
           ))}
