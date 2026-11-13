@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { Radio } from "lucide-react";
-import { useLiveMatches } from "@/hooks/use-streamed";
-import { getCountdownLabel } from "@/lib/streamed/selectors";
+import { useLiveMatches } from "@/hooks/use-ppv";
+import { getCountdownLabel, sortByHeat } from "@/lib/ppv/selectors";
 import { usePreferencesStore } from "@/store/preferences-store";
 import { usePathname } from "next/navigation";
 import { useNow } from "@/hooks/use-now";
@@ -15,7 +15,7 @@ export function LiveTicker() {
   const enabled = !["/settings", "/favorites", "/search"].includes(pathname);
   
   const { data = [] } = useLiveMatches(enabled);
-  const items = data.slice(0, 14);
+  const items = sortByHeat(data).slice(0, 14);
 
   if (!enabled) return null;
 
@@ -46,7 +46,9 @@ export function LiveTicker() {
               <span className="relative h-2 w-2 rounded-full bg-signal-lime">
                 <span className="absolute inset-0 animate-pulse-live rounded-full bg-signal-lime" />
               </span>
-              <span className="text-signal-lime">{now === 0 ? "SCANNING..." : getCountdownLabel(match.date, now, match.category)}</span>
+              <span className="text-signal-lime">
+                {now === 0 ? "SCANNING..." : getCountdownLabel(match.date, now, match.category, match.alwaysLive, match.endsAt)}
+              </span>
               <span>{match.title}</span>
             </Link>
           ))}
@@ -62,7 +64,9 @@ export function LiveTicker() {
               <span className="relative h-2 w-2 rounded-full bg-signal-lime">
                 <span className="absolute inset-0 animate-pulse-live rounded-full bg-signal-lime" />
               </span>
-              <span className="text-signal-lime">{now === 0 ? "SCANNING..." : getCountdownLabel(match.date, now, match.category)}</span>
+              <span className="text-signal-lime">
+                {now === 0 ? "SCANNING..." : getCountdownLabel(match.date, now, match.category, match.alwaysLive, match.endsAt)}
+              </span>
               <span>{match.title}</span>
             </Link>
           ))}

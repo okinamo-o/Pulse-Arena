@@ -1,7 +1,7 @@
 import * as React from "react";
-import type { StreamedMatch } from "@/lib/streamed/types";
+import type { SportMatch } from "@/lib/ppv/types";
 
-export function useScheduleFilters(matchesForSelectedDate: StreamedMatch[], selectedSports: string[]) {
+export function useScheduleFilters(matchesForSelectedDate: SportMatch[], selectedSports: string[]) {
   const [searchQuery, setSearchQuery] = React.useState("");
 
   const filteredMatches = React.useMemo(() => {

@@ -14,18 +14,18 @@ import { TeamBadge } from "@/components/match/team-badge";
 import { MatchCard } from "@/components/match/match-card";
 import { LiveScoreboard } from "@/components/match/live-scoreboard";
 import { MatchAnalyticsTabs } from "@/components/match/match-analytics-tabs";
-import { buildMatchInsights, formatSportName, getMatchParticipants } from "@/lib/streamed/selectors";
-import type { StreamedMatch } from "@/lib/streamed/types";
+import { buildMatchInsights, formatSportName, getMatchParticipants } from "@/lib/ppv/selectors";
+import type { SportMatch } from "@/lib/ppv/types";
 
 interface MatchDetailViewProps {
-  match: StreamedMatch;
-  related: StreamedMatch[];
+  match: SportMatch;
+  related: SportMatch[];
 }
 
 export function MatchDetailView({ match, related }: MatchDetailViewProps) {
   const participants = getMatchParticipants(match);
   const firstSource = match.sources[0];
-  const insights = buildMatchInsights(match);
+  const insights = buildMatchInsights(match, match.embeddedStreams);
 
   return (
     <main className="pb-44 pt-32 md:pb-16">
@@ -35,16 +35,21 @@ export function MatchDetailView({ match, related }: MatchDetailViewProps) {
           <div className="relative z-10 grid gap-8 lg:grid-cols-[1.15fr_0.85fr]">
             <div>
               <div className="mb-5 flex flex-wrap gap-2">
-                <CountdownChip date={match.date} />
+                <CountdownChip date={match.date} category={match.category} alwaysLive={match.alwaysLive} endsAt={match.endsAt} />
                 <Badge variant="cyan">{formatSportName(match.category)}</Badge>
+                {match.league && match.league !== "24/7 channel" ? <Badge variant="muted">{match.league}</Badge> : null}
                 {match.popular ? <Badge variant="hot">Trending</Badge> : null}
               </div>
               <div className="flex items-center gap-4 sm:gap-6">
                 <TeamBadge name={participants.home} badge={match.teams?.home?.badge} size="xl" />
-                <div className="rounded-full border border-white/10 bg-black/30 px-4 py-2 font-mono text-sm font-black text-white/56">
-                  VS
-                </div>
-                <TeamBadge name={participants.away} badge={match.teams?.away?.badge} size="xl" />
+                {participants.away ? (
+                  <>
+                    <div className="rounded-full border border-white/10 bg-black/30 px-4 py-2 font-mono text-sm font-black text-white/56">
+                      VS
+                    </div>
+                    <TeamBadge name={participants.away} badge={match.teams?.away?.badge} size="xl" />
+                  </>
+                ) : null}
               </div>
               <h1 className="mt-8 text-balance font-display text-4xl font-black uppercase leading-[0.95] text-white md:text-7xl">
                 {match.title}
@@ -58,7 +63,7 @@ export function MatchDetailView({ match, related }: MatchDetailViewProps) {
                     </Link>
                   </Button>
                 ) : null}
-                <ReminderButton match={match} />
+                {!match.alwaysLive && match.date > 0 ? <ReminderButton match={match} /> : null}
                 <FavoriteButton match={match} />
                 <Button variant="secondary" size="icon" aria-label="Share match">
                   <Share2 className="h-4 w-4" aria-hidden="true" />
@@ -67,7 +72,11 @@ export function MatchDetailView({ match, related }: MatchDetailViewProps) {
             </div>
             <div className="grid gap-3 content-start">
               <div className="grid grid-cols-2 gap-3">
-                <Stat icon={Calendar} label="Start" value={new Date(match.date).toLocaleString()} />
+                <Stat
+                  icon={Calendar}
+                  label="Start"
+                  value={match.alwaysLive || match.date <= 0 ? "24/7 Always Live" : new Date(match.date).toLocaleString()}
+                />
                 <Stat icon={Radio} label="Sources" value={`${match.sources.length} active`} />
               </div>
               <MomentumMeter match={match} />

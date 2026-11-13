@@ -3,10 +3,10 @@
 import * as React from "react";
 import { Bell, BellOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { StreamedMatch } from "@/lib/streamed/types";
+import type { SportMatch } from "@/lib/ppv/types";
 import { useRemindersStore } from "@/store/reminders-store";
 
-export function ReminderButton({ match, compact = false }: { match: StreamedMatch; compact?: boolean }) {
+export function ReminderButton({ match, compact = false }: { match: SportMatch; compact?: boolean }) {
   const hasReminder = useRemindersStore((state) => state.hasReminder(match.id));
   const addReminder = useRemindersStore((state) => state.addReminder);
   const removeReminder = useRemindersStore((state) => state.removeReminder);

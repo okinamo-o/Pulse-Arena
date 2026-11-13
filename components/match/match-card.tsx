@@ -9,12 +9,12 @@ import { FavoriteButton } from "@/components/match/favorite-button";
 import { ReminderButton } from "@/components/match/reminder-button";
 import { TeamBadge } from "@/components/match/team-badge";
 import { MomentumMeter } from "@/components/match/momentum-meter";
-import { formatSportName, getHeatScore, getMatchParticipants } from "@/lib/streamed/selectors";
-import type { StreamedMatch } from "@/lib/streamed/types";
+import { formatSportName, getHeatScore, getMatchParticipants } from "@/lib/ppv/selectors";
+import type { SportMatch } from "@/lib/ppv/types";
 import { cn } from "@/lib/utils/cn";
 
 interface MatchCardProps {
-  match: StreamedMatch;
+  match: SportMatch;
   variant?: "default" | "compact" | "hero";
   className?: string;
 }
@@ -37,7 +37,7 @@ export const MatchCard = React.memo(function MatchCard({ match, variant = "defau
         <div className="min-w-0">
           <p className="truncate text-sm font-black uppercase text-white">{match.title}</p>
           <div className="mt-2 flex flex-wrap gap-2">
-            <CountdownChip date={match.date} category={match.category} />
+            <CountdownChip date={match.date} category={match.category} alwaysLive={match.alwaysLive} endsAt={match.endsAt} />
             <Badge variant="muted">{formatSportName(match.category)}</Badge>
           </div>
         </div>
@@ -57,21 +57,25 @@ export const MatchCard = React.memo(function MatchCard({ match, variant = "defau
       <div className="relative z-10 flex h-full flex-col">
         <div className="flex items-start justify-between gap-3">
           <div className="flex flex-wrap gap-2">
-            <CountdownChip date={match.date} category={match.category} />
+            <CountdownChip date={match.date} category={match.category} alwaysLive={match.alwaysLive} endsAt={match.endsAt} />
             <Badge variant={match.popular ? "hot" : "cyan"}>{formatSportName(match.category)}</Badge>
           </div>
           <div className="flex gap-2">
-            <ReminderButton match={match} compact />
+            {!match.alwaysLive && match.date > 0 ? <ReminderButton match={match} compact /> : null}
             <FavoriteButton match={match} compact />
           </div>
         </div>
-        <Link href={`/match/${match.id}`} className="mt-7 block">
+        <Link href={`/match/${encodeURIComponent(match.id)}`} className="mt-7 block">
           <div className="flex items-center justify-center gap-4">
             <TeamBadge name={participants.home} badge={match.teams?.home?.badge} size="lg" />
-            <div className="rounded-full border border-white/10 bg-black/40 px-3 py-1.5 font-mono text-xs font-black text-white/80">
-              VS
-            </div>
-            <TeamBadge name={participants.away} badge={match.teams?.away?.badge} size="lg" />
+            {participants.away ? (
+              <>
+                <div className="rounded-full border border-white/10 bg-black/40 px-3 py-1.5 font-mono text-xs font-black text-white/80">
+                  VS
+                </div>
+                <TeamBadge name={participants.away} badge={match.teams?.away?.badge} size="lg" />
+              </>
+            ) : null}
           </div>
           <h3 className="mt-6 text-balance text-center font-display text-2xl font-black uppercase leading-tight text-white">
             {match.title}

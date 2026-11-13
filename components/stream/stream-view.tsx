@@ -7,26 +7,30 @@ import { Maximize, Radio, Tv } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MatchCard } from "@/components/match/match-card";
-import type { StreamedMatch, StreamedStream } from "@/lib/streamed/types";
+import type { SportMatch, SportStream } from "@/lib/ppv/types";
 import { StreamTelemetrySidebar } from "@/components/stream/stream-telemetry-sidebar";
 
 interface StreamViewProps {
   source: string;
   id: string;
-  streams: StreamedStream[];
-  match?: StreamedMatch;
-  related: StreamedMatch[];
+  streams: SportStream[];
+  match?: SportMatch;
+  related: SportMatch[];
 }
 
-export function StreamView({ id, streams, match, related }: StreamViewProps) {
-  const [active, setActive] = React.useState(streams[0]);
-  const activeStream = active ?? streams[0];
+export function StreamView({ source, id, streams, match, related }: StreamViewProps) {
+  const initialStream = React.useMemo(
+    () => streams.find((s) => s.source === source) ?? streams[0],
+    [streams, source]
+  );
+  const [active, setActive] = React.useState(initialStream);
+  const activeStream = active ?? initialStream ?? streams[0];
   const router = useRouter();
   const iframeRef = React.useRef<HTMLIFrameElement>(null);
 
   React.useEffect(() => {
-    setActive(streams[0]);
-  }, [streams]);
+    setActive(initialStream);
+  }, [initialStream]);
 
   React.useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -120,10 +124,10 @@ export function StreamView({ id, streams, match, related }: StreamViewProps) {
             </div>
             <div className="grid gap-3 md:grid-cols-2">
               {streams.map((stream) => {
-                const selected = activeStream?.streamNo === stream.streamNo;
+                const selected = activeStream?.id === stream.id && activeStream?.streamNo === stream.streamNo;
                 return (
                   <button
-                    key={`${stream.source}-${stream.streamNo}`}
+                    key={`${stream.id}-${stream.streamNo}`}
                     className={`rounded-xl border p-4 text-left transition ${
                       selected
                         ? "border-signal-lime bg-signal-lime/12 shadow-glow"
@@ -141,7 +145,7 @@ export function StreamView({ id, streams, match, related }: StreamViewProps) {
                       <Badge variant={stream.hd ? "live" : "muted"}>{stream.hd ? "HD" : "SD"}</Badge>
                     </div>
                     <div className="mt-4 flex items-center justify-between text-xs font-bold uppercase tracking-[0.15em] text-white/46">
-                      <span>{stream.source}</span>
+                      <span>{stream.label || stream.source}</span>
                       <span>{stream.viewers ? `${stream.viewers.toLocaleString()} viewers` : "Live"}</span>
                     </div>
                   </button>

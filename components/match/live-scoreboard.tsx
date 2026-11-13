@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ComprehensiveMatchData } from "@/lib/streamed/types";
+import { ComprehensiveMatchData } from "@/lib/ppv/types";
 import { GlassPanel } from "@/components/ui/glass-panel";
 import { TeamBadge } from "@/components/match/team-badge";
 
@@ -17,7 +17,7 @@ interface LiveScoreboardProps {
 
 export function LiveScoreboard({ homeTeam, awayTeam, homeBadge, awayBadge, matchDate, category = "football" }: LiveScoreboardProps) {
   const { data } = useQuery<ComprehensiveMatchData>({
-    queryKey: ["streamed", "telemetry", homeTeam, awayTeam, category],
+    queryKey: ["ppv", "telemetry", homeTeam, awayTeam, category],
     queryFn: async () => {
       if (!homeTeam || !awayTeam) return null;
       const res = await fetch(
@@ -32,6 +32,8 @@ export function LiveScoreboard({ homeTeam, awayTeam, homeBadge, awayBadge, match
     retry: (failureCount, err) => (err.message === "Match not found" ? false : failureCount < 3),
   });
 
+  if (!homeTeam || !awayTeam) return null;
+
   const displayScore = data?.score ? `${data.score.home} - ${data.score.away}` : "- - -";
   const displayStatus = data?.score?.status || "AWAITING";
   const isTennis = data?.sportType === "tennis";
@@ -39,7 +41,9 @@ export function LiveScoreboard({ homeTeam, awayTeam, homeBadge, awayBadge, match
   return (
     <GlassPanel className="p-8 flex flex-col items-center justify-center">
       <p className="text-sm font-bold text-white/50 mb-6" suppressHydrationWarning>
-        {new Date(matchDate).toLocaleString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+        {matchDate > 0
+          ? new Date(matchDate).toLocaleString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })
+          : "24/7 Live Channel"}
       </p>
       <div className="flex items-center justify-center gap-12 w-full max-w-2xl">
         <div className="flex flex-col items-center gap-4">

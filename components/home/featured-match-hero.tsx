@@ -9,12 +9,12 @@ import { CountdownChip } from "@/components/match/countdown-chip";
 import { MomentumMeter } from "@/components/match/momentum-meter";
 import { TeamBadge } from "@/components/match/team-badge";
 import { usePreferencesStore } from "@/store/preferences-store";
-import { posterImageUrl } from "@/lib/streamed/client";
-import { formatSportName, getMatchParticipants } from "@/lib/streamed/selectors";
-import type { StreamedMatch } from "@/lib/streamed/types";
+import { posterImageUrl } from "@/lib/ppv/client";
+import { formatSportName, getMatchParticipants } from "@/lib/ppv/selectors";
+import type { SportMatch } from "@/lib/ppv/types";
 
 interface FeaturedMatchHeroProps {
-  match: StreamedMatch;
+  match: SportMatch;
 }
 
 export function FeaturedMatchHero({ match }: FeaturedMatchHeroProps) {
@@ -41,7 +41,7 @@ export function FeaturedMatchHero({ match }: FeaturedMatchHeroProps) {
           transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
         >
           <div className="mb-5 flex flex-wrap gap-2">
-            <CountdownChip date={match.date} />
+            <CountdownChip date={match.date} category={match.category} alwaysLive={match.alwaysLive} endsAt={match.endsAt} />
             <Badge variant="cyan">{formatSportName(match.category)}</Badge>
             {match.popular ? <Badge variant="hot">Heat index rising</Badge> : null}
           </div>
@@ -89,12 +89,16 @@ export function FeaturedMatchHero({ match }: FeaturedMatchHeroProps) {
               <motion.div animate={reducedMotion ? {} : { y: [0, -8, 0] }} transition={{ duration: 5, repeat: Infinity }}>
                 <TeamBadge name={participants.home} badge={match.teams?.home?.badge} className="h-20 w-20 text-lg sm:h-28 sm:w-28 sm:text-2xl" />
               </motion.div>
-              <div className="rounded-full border border-white/10 bg-black/35 px-3 py-1.5 sm:px-4 sm:py-2 font-mono text-xs sm:text-sm font-black text-white/58">
-                VS
-              </div>
-              <motion.div animate={reducedMotion ? {} : { y: [0, 8, 0] }} transition={{ duration: 5.5, repeat: Infinity }}>
-                <TeamBadge name={participants.away} badge={match.teams?.away?.badge} className="h-20 w-20 text-lg sm:h-28 sm:w-28 sm:text-2xl" />
-              </motion.div>
+              {participants.away ? (
+                <>
+                  <div className="rounded-full border border-white/10 bg-black/35 px-3 py-1.5 sm:px-4 sm:py-2 font-mono text-xs sm:text-sm font-black text-white/58">
+                    VS
+                  </div>
+                  <motion.div animate={reducedMotion ? {} : { y: [0, 8, 0] }} transition={{ duration: 5.5, repeat: Infinity }}>
+                    <TeamBadge name={participants.away} badge={match.teams?.away?.badge} className="h-20 w-20 text-lg sm:h-28 sm:w-28 sm:text-2xl" />
+                  </motion.div>
+                </>
+              ) : null}
             </div>
             <MomentumMeter match={match} />
           </div>

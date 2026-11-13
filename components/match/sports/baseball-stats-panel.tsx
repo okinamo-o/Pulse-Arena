@@ -1,6 +1,6 @@
 "use client";
 
-import { BaseballStats, PeriodScore } from "@/lib/streamed/types";
+import { BaseballStats, PeriodScore } from "@/lib/ppv/types";
 import { GlassPanel } from "@/components/ui/glass-panel";
 
 export function BaseballStatsPanel({ stats, periods }: { stats: BaseballStats; periods?: PeriodScore[] }) {

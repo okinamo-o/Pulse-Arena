@@ -11,7 +11,7 @@ import {
   BaseballStats,
   CricketStats,
   AmericanFootballStats,
-} from "@/lib/streamed/types";
+} from "@/lib/ppv/types";
 import { MatchStatsPanel } from "@/components/match/match-stats-panel";
 import { MatchLineupsPanel } from "@/components/match/match-lineups-panel";
 import { MatchStandingsPanel } from "@/components/match/match-standings-panel";
@@ -74,7 +74,7 @@ function getTabsForSport(sportType?: string): TabDef[] {
 
 export function MatchAnalyticsTabs({ homeTeam, awayTeam, category = "football" }: MatchAnalyticsTabsProps) {
   const { data, isLoading } = useQuery<ComprehensiveMatchData>({
-    queryKey: ["streamed", "telemetry", homeTeam, awayTeam, category],
+    queryKey: ["ppv", "telemetry", homeTeam, awayTeam, category],
     queryFn: async () => {
       if (!homeTeam || !awayTeam) return null;
       const res = await fetch(

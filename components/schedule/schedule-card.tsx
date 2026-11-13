@@ -13,13 +13,13 @@ import {
   generateGoogleCalendarUrl,
   generateOutlookUrl,
   generateICSDownloadUrl
-} from "@/lib/streamed/schedule";
-import { formatSportName, getMatchParticipants, getMatchStatus } from "@/lib/streamed/selectors";
-import type { StreamedMatch } from "@/lib/streamed/types";
+} from "@/lib/ppv/schedule";
+import { formatSportName, getMatchParticipants, getMatchStatus } from "@/lib/ppv/selectors";
+import type { SportMatch } from "@/lib/ppv/types";
 import { cn } from "@/lib/utils/cn";
 
 interface ScheduleCardProps {
-  match: StreamedMatch;
+  match: SportMatch;
   className?: string;
   /** Shared timestamp from parent to avoid per-card timers */
   now?: number;
@@ -51,21 +51,23 @@ export function ScheduleCard({ match, className, now: externalNow }: ScheduleCar
   const firstSource = match.sources[0];
 
   const localTime = React.useMemo(() => {
+    if (match.alwaysLive || match.date <= 0) return "24/7";
     return new Intl.DateTimeFormat("en", {
       hour: "2-digit",
       minute: "2-digit",
       hour12: false,
       timeZone: mounted ? undefined : "UTC"
     }).format(match.date);
-  }, [match.date, mounted]);
+  }, [match.alwaysLive, match.date, mounted]);
 
   const localDate = React.useMemo(() => {
+    if (match.alwaysLive || match.date <= 0) return "LIVE";
     return new Intl.DateTimeFormat("en", {
       month: "short",
       day: "numeric",
       timeZone: mounted ? undefined : "UTC"
     }).format(match.date);
-  }, [match.date, mounted]);
+  }, [match.alwaysLive, match.date, mounted]);
 
   return (
     <motion.article
@@ -115,16 +117,20 @@ export function ScheduleCard({ match, className, now: externalNow }: ScheduleCar
               <TeamBadge name={participants.home} badge={match.teams?.home?.badge} size="sm" />
             </div>
 
-            <span className="rounded-full border border-white/10 bg-black/40 px-2 py-0.5 font-mono text-[0.62rem] font-black text-white/60">
-              VS
-            </span>
+            {participants.away ? (
+              <>
+                <span className="rounded-full border border-white/10 bg-black/40 px-2 py-0.5 font-mono text-[0.62rem] font-black text-white/60">
+                  VS
+                </span>
 
-            <div className="flex items-center gap-2 max-w-[40%] text-left">
-              <TeamBadge name={participants.away} badge={match.teams?.away?.badge} size="sm" />
-              <span className="hidden truncate text-sm font-bold text-white/90 sm:inline-block">
-                {participants.away}
-              </span>
-            </div>
+                <div className="flex items-center gap-2 max-w-[40%] text-left">
+                  <TeamBadge name={participants.away} badge={match.teams?.away?.badge} size="sm" />
+                  <span className="hidden truncate text-sm font-bold text-white/90 sm:inline-block">
+                    {participants.away}
+                  </span>
+                </div>
+              </>
+            ) : null}
           </Link>
           
           <div className="hidden flex-col items-center justify-center text-center lg:flex">

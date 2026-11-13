@@ -2,11 +2,11 @@ import * as React from "react";
 import Link from "next/link";
 import { Flame } from "lucide-react";
 import { GlassPanel } from "@/components/ui/glass-panel";
-import { formatSportName, getMatchStatus } from "@/lib/streamed/selectors";
-import type { StreamedMatch } from "@/lib/streamed/types";
+import { formatSportName, getMatchStatus } from "@/lib/ppv/selectors";
+import type { SportMatch } from "@/lib/ppv/types";
 
 interface ScheduleSidebarProps {
-  matches: StreamedMatch[];
+  matches: SportMatch[];
   now: number;
   mounted: boolean;
   timeZoneName: string;

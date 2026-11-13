@@ -5,8 +5,8 @@ import { ArrowUpRight, Trophy } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { GlassPanel } from "@/components/ui/glass-panel";
 import { ErrorState } from "@/components/system/error-state";
-import { useSports, useTodayMatches } from "@/hooks/use-streamed";
-import { getMatchStatus } from "@/lib/streamed/selectors";
+import { useSports, useTodayMatches } from "@/hooks/use-ppv";
+import { getMatchStatus } from "@/lib/ppv/selectors";
 
 export function SportsDirectory() {
   const { data: sports = [], isLoading: sportsLoading, isError: sportsError, refetch: refetchSports } = useSports();

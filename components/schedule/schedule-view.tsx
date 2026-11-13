@@ -12,7 +12,7 @@ import { ScheduleFilters } from "@/components/schedule/schedule-filters";
 import { ScheduleSidebar } from "@/components/schedule/schedule-sidebar";
 import { CompetitionView } from "@/components/schedule/views/competition-view";
 import { ErrorState } from "@/components/system/error-state";
-import { useAllMatches, useSports } from "@/hooks/use-streamed";
+import { useAllMatches, useSports } from "@/hooks/use-ppv";
 import { useScheduleFilters } from "@/hooks/use-schedule-filters";
 import { useScheduleGrouping } from "@/hooks/use-schedule-grouping";
 import { usePreferencesStore } from "@/store/preferences-store";
@@ -22,7 +22,7 @@ import {
   getTimeBlock,
   getDaysRange,
   type TimeBlock
-} from "@/lib/streamed/schedule";
+} from "@/lib/ppv/schedule";
 
 interface ScheduleViewProps {
   initialNow: number;
@@ -221,7 +221,7 @@ export function ScheduleView({ initialNow }: ScheduleViewProps) {
                       <span className="text-[0.62rem] font-bold">READY</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span>&gt; CONNECTING SECURE PROXY: /api/streamed/matches/all</span>
+                      <span>&gt; CONNECTING SECURE PROXY: /api/ppv/streams</span>
                       <span className="text-signal-lime font-bold animate-pulse">RUNNING</span>
                     </div>
                   </div>

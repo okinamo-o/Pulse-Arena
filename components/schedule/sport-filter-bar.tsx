@@ -1,16 +1,16 @@
 "use client";
 
 import * as React from "react";
-import { formatSportName } from "@/lib/streamed/selectors";
-import type { StreamedSport, StreamedMatch } from "@/lib/streamed/types";
+import { formatSportName } from "@/lib/ppv/selectors";
+import type { SportCategory, SportMatch } from "@/lib/ppv/types";
 import { cn } from "@/lib/utils/cn";
 
 interface SportFilterBarProps {
-  sports: StreamedSport[];
+  sports: SportCategory[];
   selectedSports: string[];
   onToggleSport: (sportId: string) => void;
   onClearFilters: () => void;
-  matchesForSelectedDate: StreamedMatch[];
+  matchesForSelectedDate: SportMatch[];
 }
 
 export function SportFilterBar({

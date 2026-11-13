@@ -1,4 +1,4 @@
-import type { StreamedMatch } from "@/lib/streamed/types";
+import type { SportMatch } from "@/lib/ppv/types";
 
 // Detect browser timezone
 export function getUserTimeZone(): string {
@@ -8,6 +8,7 @@ export function getUserTimeZone(): string {
 
 // Convert a timestamp to local date string (YYYY-MM-DD)
 export function toLocalDateString(timestamp: number, useUTC = false): string {
+  if (!timestamp || timestamp <= 0) return "";
   const d = new Date(timestamp);
   const year = useUTC ? d.getUTCFullYear() : d.getFullYear();
   const month = String((useUTC ? d.getUTCMonth() : d.getMonth()) + 1).padStart(2, "0");
@@ -26,45 +27,43 @@ export interface DateInfo {
 export function getDaysRange(count = 10, baseTimestamp = Date.now(), useUTC = false): DateInfo[] {
   const range: DateInfo[] = [];
   const now = new Date(baseTimestamp);
-  
+
   for (let i = 0; i < count; i++) {
     const d = new Date(now);
     if (useUTC) {
       d.setUTCDate(now.getUTCDate() + i);
-      // Normalize to start of day UTC
       d.setUTCHours(0, 0, 0, 0);
     } else {
       d.setDate(now.getDate() + i);
-      // Normalize to start of day local time
       d.setHours(0, 0, 0, 0);
     }
-    
+
     const dateString = toLocalDateString(d.getTime(), useUTC);
-    
+
     let dayName = "";
     if (i === 0) dayName = "Today";
     else if (i === 1) dayName = "Tomorrow";
     else {
       dayName = new Intl.DateTimeFormat("en", {
         weekday: "short",
-        timeZone: useUTC ? "UTC" : undefined
+        timeZone: useUTC ? "UTC" : undefined,
       }).format(d);
     }
-    
+
     const displayDate = new Intl.DateTimeFormat("en", {
       month: "short",
       day: "numeric",
-      timeZone: useUTC ? "UTC" : undefined
+      timeZone: useUTC ? "UTC" : undefined,
     }).format(d);
-    
+
     range.push({
       dateString,
       dayName,
       displayDate,
-      timestamp: d.getTime()
+      timestamp: d.getTime(),
     });
   }
-  
+
   return range;
 }
 
@@ -73,7 +72,6 @@ export type DensityLevel = "Light Day" | "Medium Day" | "Busy Day";
 export type DensityTone = "cyan" | "orange" | "lime";
 
 export function getScheduleDensity(matchCount: number): { label: DensityLevel; tone: DensityTone } {
-  if (matchCount === 0) return { label: "Light Day", tone: "cyan" };
   if (matchCount <= 3) return { label: "Light Day", tone: "cyan" };
   if (matchCount <= 8) return { label: "Medium Day", tone: "orange" };
   return { label: "Busy Day", tone: "lime" };
@@ -94,51 +92,51 @@ export const TIME_BLOCKS: { id: TimeBlock; label: string; hoursRange: string }[]
   { id: "morning", label: "Morning", hoursRange: "06:00 - 12:00" },
   { id: "afternoon", label: "Afternoon", hoursRange: "12:00 - 17:00" },
   { id: "evening", label: "Evening", hoursRange: "17:00 - 21:00" },
-  { id: "night", label: "Night", hoursRange: "21:00 - 06:00" }
+  { id: "night", label: "Night", hoursRange: "21:00 - 06:00" },
 ];
 
 // Calendar Exports
-export function generateGoogleCalendarUrl(match: StreamedMatch): string {
+export function generateGoogleCalendarUrl(match: SportMatch): string {
   const startDate = new Date(match.date);
-  const endDate = new Date(match.date + 2 * 60 * 60 * 1000); // Default duration: 2h
-  
-  const formatDateStr = (d: Date) => {
-    return d.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
-  };
-  
+  const endDate = new Date(match.endsAt && match.endsAt > match.date ? match.endsAt : match.date + 2 * 60 * 60 * 1000);
+
+  const formatDateStr = (d: Date) => d.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+
   const text = encodeURIComponent(`Pulse Arena: ${match.title}`);
   const dates = `${formatDateStr(startDate)}/${formatDateStr(endDate)}`;
   const details = encodeURIComponent(
-    `Watch this event live on Pulse Arena!\nCategory: ${match.category}\nMatch link: ${typeof window !== "undefined" ? window.location.origin : ""}/match/${match.id}`
+    `Watch this event live on Pulse Arena!\nCategory: ${match.categoryName ?? match.category}\nMatch link: ${typeof window !== "undefined" ? window.location.origin : ""}/match/${match.id}`
   );
-  
+
   return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${text}&dates=${dates}&details=${details}`;
 }
 
-export function generateOutlookUrl(match: StreamedMatch): string {
+export function generateOutlookUrl(match: SportMatch): string {
   const startDate = new Date(match.date);
-  const endDate = new Date(match.date + 2 * 60 * 60 * 1000);
-  
+  const endDate = new Date(match.endsAt && match.endsAt > match.date ? match.endsAt : match.date + 2 * 60 * 60 * 1000);
+
   const subject = encodeURIComponent(`Pulse Arena: ${match.title}`);
   const body = encodeURIComponent(
-    `Watch this event live on Pulse Arena!\nCategory: ${match.category}\nMatch link: ${typeof window !== "undefined" ? window.location.origin : ""}/match/${match.id}`
+    `Watch this event live on Pulse Arena!\nCategory: ${match.categoryName ?? match.category}\nMatch link: ${typeof window !== "undefined" ? window.location.origin : ""}/match/${match.id}`
   );
-  
+
   return `https://outlook.live.com/calendar/0/deeplink/compose?subject=${subject}&startdt=${startDate.toISOString()}&enddt=${endDate.toISOString()}&body=${body}`;
 }
 
-export function generateICSDownloadUrl(match: StreamedMatch): string {
+export function generateICSDownloadUrl(match: SportMatch): string {
   const startDate = new Date(match.date);
-  const endDate = new Date(match.date + 2 * 60 * 60 * 1000);
-  
-  const formatDateStr = (d: Date) => {
-    return d.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
-  };
-  
-  const escapeICS = (str: string) => {
-    return (str || "").replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n").replace(/\r/g, "");
-  };
-  
+  const endDate = new Date(match.endsAt && match.endsAt > match.date ? match.endsAt : match.date + 2 * 60 * 60 * 1000);
+
+  const formatDateStr = (d: Date) => d.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+
+  const escapeICS = (str: string) =>
+    (str || "")
+      .replace(/\\/g, "\\\\")
+      .replace(/;/g, "\\;")
+      .replace(/,/g, "\\,")
+      .replace(/\n/g, "\\n")
+      .replace(/\r/g, "");
+
   const safeId = (match.id || "").replace(/[\r\n]/g, "");
 
   const fileContent = [
@@ -151,11 +149,11 @@ export function generateICSDownloadUrl(match: StreamedMatch): string {
     `DTSTART:${formatDateStr(startDate)}`,
     `DTEND:${formatDateStr(endDate)}`,
     `SUMMARY:Pulse Arena: ${escapeICS(match.title)}`,
-    `DESCRIPTION:Watch live on Pulse Arena. Category: ${escapeICS(match.category)}`,
+    `DESCRIPTION:Watch live on Pulse Arena. Category: ${escapeICS(match.categoryName ?? match.category)}`,
     "END:VEVENT",
-    "END:VCALENDAR"
+    "END:VCALENDAR",
   ].join("\r\n");
-  
+
   return `data:text/calendar;charset=utf-8,${encodeURIComponent(fileContent)}`;
 }
 
@@ -163,26 +161,25 @@ export function generateICSDownloadUrl(match: StreamedMatch): string {
 export interface HourGroup {
   hourString: string; // e.g. "18:00"
   timeBlock: TimeBlock;
-  matches: StreamedMatch[];
+  matches: SportMatch[];
 }
 
-export function groupMatchesByHour(matches: StreamedMatch[], useUTC = false): HourGroup[] {
-  const groupsMap: Record<string, StreamedMatch[]> = {};
-  
-  // Group
+export function groupMatchesByHour(matches: SportMatch[], useUTC = false): HourGroup[] {
+  const groupsMap: Record<string, SportMatch[]> = {};
+
   matches.forEach((match) => {
+    if (!match.date || match.date <= 0) return;
     const d = new Date(match.date);
     const hour = String(useUTC ? d.getUTCHours() : d.getHours()).padStart(2, "0");
-    const minute = String(Math.floor((useUTC ? d.getUTCMinutes() : d.getMinutes()) / 15) * 15).padStart(2, "0"); // round to nearest 15 mins for cleaner hour blocks
+    const minute = String(Math.floor((useUTC ? d.getUTCMinutes() : d.getMinutes()) / 15) * 15).padStart(2, "0");
     const hourString = `${hour}:${minute}`;
-    
+
     if (!groupsMap[hourString]) {
       groupsMap[hourString] = [];
     }
     groupsMap[hourString].push(match);
   });
-  
-  // Convert map to sorted list
+
   return Object.keys(groupsMap)
     .sort()
     .map((hourString) => {
@@ -193,13 +190,14 @@ export function groupMatchesByHour(matches: StreamedMatch[], useUTC = false): Ho
       } else {
         dummyDate.setHours(parseInt(parts[0], 10), parseInt(parts[1], 10), 0, 0);
       }
-      
+
       const timeBlock = getTimeBlock(dummyDate.getTime(), useUTC);
-      
+
       return {
         hourString,
         timeBlock,
-        matches: groupsMap[hourString]
+        matches: groupsMap[hourString],
       };
     });
 }
+

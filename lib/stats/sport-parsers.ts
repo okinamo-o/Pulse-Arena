@@ -11,7 +11,7 @@ import type {
   AmericanFootballStats,
   PeriodScore,
   SportType,
-} from "@/lib/streamed/types";
+} from "@/lib/ppv/types";
 
 // ─── Shared helpers ──────────────────────────────────────────
 function getStat(stats: any[], name: string, fallback = "0"): number {

@@ -1,6 +1,6 @@
 "use client";
 
-import { HockeyStats, PeriodScore } from "@/lib/streamed/types";
+import { HockeyStats, PeriodScore } from "@/lib/ppv/types";
 import { GlassPanel } from "@/components/ui/glass-panel";
 
 export function HockeyStatsPanel({ stats, periods }: { stats: HockeyStats; periods?: PeriodScore[] }) {

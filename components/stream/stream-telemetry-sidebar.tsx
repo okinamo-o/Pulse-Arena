@@ -4,18 +4,18 @@
 import * as React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Activity, Clock } from "lucide-react";
-import { ComprehensiveMatchData, StreamedMatch } from "@/lib/streamed/types";
-import { getMatchParticipants } from "@/lib/streamed/selectors";
+import { ComprehensiveMatchData, SportMatch } from "@/lib/ppv/types";
+import { getMatchParticipants } from "@/lib/ppv/selectors";
 import { GlassPanel } from "@/components/ui/glass-panel";
 import { TeamBadge } from "@/components/match/team-badge";
 
-export function StreamTelemetrySidebar({ match }: { match?: StreamedMatch }) {
+export function StreamTelemetrySidebar({ match }: { match?: SportMatch }) {
   const participants = match ? getMatchParticipants(match) : null;
   const homeTeam = participants?.home;
   const awayTeam = participants?.away;
 
   const { data } = useQuery<ComprehensiveMatchData>({
-    queryKey: ["streamed", "telemetry", homeTeam, awayTeam],
+    queryKey: ["ppv", "telemetry", homeTeam, awayTeam],
     queryFn: async () => {
       if (!homeTeam || !awayTeam) return null;
       const categoryParam = match?.category ? `&category=${encodeURIComponent(match.category)}` : "";
@@ -30,7 +30,7 @@ export function StreamTelemetrySidebar({ match }: { match?: StreamedMatch }) {
   const displayScore = data?.score ? `${data.score.home} - ${data.score.away}` : "0 - 0";
   const displayStatus = data?.score?.status || "AWAITING";
 
-  if (!match) return null;
+  if (!match || !homeTeam || !awayTeam) return null;
 
   return (
     <GlassPanel className="p-4 flex flex-col h-fit bg-graphite-950/80">

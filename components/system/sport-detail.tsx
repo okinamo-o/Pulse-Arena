@@ -3,17 +3,17 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MatchCard } from "@/components/match/match-card";
-import type { StreamedMatch, StreamedSport } from "@/lib/streamed/types";
-import { formatSportName, sortByHeat } from "@/lib/streamed/selectors";
+import type { SportCategory, SportMatch } from "@/lib/ppv/types";
+import { formatSportName, sortByHeat } from "@/lib/ppv/selectors";
 
 export function SportDetail({
   sport,
   matches,
   popular
 }: {
-  sport?: StreamedSport;
-  matches: StreamedMatch[];
-  popular: StreamedMatch[];
+  sport?: SportCategory;
+  matches: SportMatch[];
+  popular: SportMatch[];
 }) {
   const title = sport?.name ?? formatSportName(matches[0]?.category ?? "sport");
   const sorted = sortByHeat(matches);

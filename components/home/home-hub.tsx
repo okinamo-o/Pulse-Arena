@@ -10,8 +10,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/motion/reveal";
 import { ErrorState } from "@/components/system/error-state";
-import { useLiveMatches, useSports, useTodayMatches } from "@/hooks/use-streamed";
-import { formatSportName, sortByHeat } from "@/lib/streamed/selectors";
+import { useLiveMatches, useSports, useTodayMatches } from "@/hooks/use-ppv";
+import { formatSportName, sortByHeat } from "@/lib/ppv/selectors";
 
 export function HomeHub() {
   const { data: sports = [], isLoading: sportsLoading, isError: sportsError, refetch: refetchSports } = useSports();
@@ -29,8 +29,11 @@ export function HomeHub() {
 
   const featured = sortByHeat([...liveMatches, ...todayMatches])[0] ?? todayMatches[0];
   const trending = sortByHeat(liveMatches.length ? liveMatches : todayMatches).slice(0, 8);
-  const popular = todayMatches.filter((match) => match.popular).slice(0, 8);
-  const upcoming = [...todayMatches].sort((a, b) => a.date - b.date).slice(0, 10);
+  const popular = sortByHeat(todayMatches.filter((match) => match.popular)).slice(0, 8);
+  const upcoming = [...todayMatches]
+    .filter((match) => !match.alwaysLive && match.date > 0)
+    .sort((a, b) => a.date - b.date)
+    .slice(0, 10);
 
   if (isLoading) {
     return <HomeLoader />;

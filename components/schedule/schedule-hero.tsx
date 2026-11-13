@@ -3,11 +3,11 @@
 import * as React from "react";
 import { Flame, Radio, Clock } from "lucide-react";
 import { GlassPanel } from "@/components/ui/glass-panel";
-import type { StreamedMatch } from "@/lib/streamed/types";
-import { getMatchStatus } from "@/lib/streamed/selectors";
+import type { SportMatch } from "@/lib/ppv/types";
+import { getMatchStatus } from "@/lib/ppv/selectors";
 
 interface ScheduleHeroProps {
-  matches: StreamedMatch[];
+  matches: SportMatch[];
 }
 
 export function ScheduleHero({ matches }: ScheduleHeroProps) {

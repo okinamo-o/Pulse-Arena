@@ -4,10 +4,10 @@ import Link from "next/link";
 import { ArrowUpRight, Gauge, Languages, MonitorPlay, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useStreams } from "@/hooks/use-streamed";
-import type { StreamedMatch } from "@/lib/streamed/types";
+import { useStreams } from "@/hooks/use-ppv";
+import type { SportMatch } from "@/lib/ppv/types";
 
-export function StreamSourceGrid({ match }: { match: StreamedMatch }) {
+export function StreamSourceGrid({ match }: { match: SportMatch }) {
   return (
     <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
       {match.sources.map((source) => (

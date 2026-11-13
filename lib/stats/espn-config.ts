@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { SportType } from "@/lib/streamed/types";
+import type { SportType } from "@/lib/ppv/types";
 
 /**
- * Maps a streamed-API category string to a recognised SportType.
+ * Maps a sport category string to a recognised SportType.
  */
 export function resolveSportType(category: string): SportType {
   const c = category.toLowerCase();

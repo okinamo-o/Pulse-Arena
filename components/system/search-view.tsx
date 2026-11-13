@@ -5,8 +5,8 @@ import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { MatchCard } from "@/components/match/match-card";
-import { useAllMatches, useSports } from "@/hooks/use-streamed";
-import { formatSportName, sortByHeat } from "@/lib/streamed/selectors";
+import { useAllMatches, useSports } from "@/hooks/use-ppv";
+import { formatSportName, sortByHeat } from "@/lib/ppv/selectors";
 import { usePreferencesStore } from "@/store/preferences-store";
 
 export function SearchView() {

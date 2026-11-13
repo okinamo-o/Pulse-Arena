@@ -5,12 +5,27 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "streamed.pk",
-        pathname: "/api/images/**"
+        hostname: "static.ppvservices.st",
+        pathname: "/**"
       },
       {
         protocol: "https",
-        hostname: "embed.st",
+        hostname: "api.ppv.st",
+        pathname: "/**"
+      },
+      {
+        protocol: "https",
+        hostname: "ppv.st",
+        pathname: "/**"
+      },
+      {
+        protocol: "https",
+        hostname: "thumbs.poocloud.in",
+        pathname: "/**"
+      },
+      {
+        protocol: "https",
+        hostname: "a.espncdn.com",
         pathname: "/**"
       }
     ]
@@ -37,7 +52,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: "Content-Security-Policy",
-            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://browser.sentry-cdn.com https://js.sentry-cdn.com; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: https://streamed.pk https://embed.st; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; frame-src 'self' https://streamed.pk https://embed.st https://*.strmd.st https://*.embed.st; connect-src 'self' https://*.sentry.io;",
+            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://browser.sentry-cdn.com https://js.sentry-cdn.com; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: https:; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; frame-src 'self' https:; connect-src 'self' https://*.sentry.io;",
           },
         ],
       },

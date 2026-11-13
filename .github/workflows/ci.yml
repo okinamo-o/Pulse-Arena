@@ -29,4 +29,4 @@ jobs:
         run: npm run build
         env:
           NEXT_PUBLIC_SITE_URL: http://localhost:3000
-          STREAMED_API_ORIGIN: https://streamed.pk
+          PPV_API_ORIGIN: https://api.ppv.st

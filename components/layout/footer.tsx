@@ -83,7 +83,7 @@ export function Footer() {
         {/* Bottom bar */}
         <div className="mt-12 flex flex-col gap-4 border-t border-white/[0.06] pt-8 md:flex-row md:items-center md:justify-between text-xs text-white/38">
           <p>
-            &copy; {new Date().getFullYear()} Pulse Arena. All rights reserved. Powered by Streamed API.
+            &copy; {new Date().getFullYear()} Pulse Arena. All rights reserved. Powered by PPV.st.
           </p>
           <p className="flex items-center gap-1.5">
             Designed for live action with <Heart className="h-3 w-3 text-signal-red fill-signal-red" />

@@ -1,12 +1,12 @@
 import * as React from "react";
 import { Trophy } from "lucide-react";
 import { ScheduleCard } from "@/components/schedule/schedule-card";
-import { formatSportName } from "@/lib/streamed/selectors";
-import type { StreamedMatch } from "@/lib/streamed/types";
+import { formatSportName } from "@/lib/ppv/selectors";
+import type { SportMatch } from "@/lib/ppv/types";
 
 interface CompetitionGroup {
   category: string;
-  matches: StreamedMatch[];
+  matches: SportMatch[];
 }
 
 interface CompetitionViewProps {

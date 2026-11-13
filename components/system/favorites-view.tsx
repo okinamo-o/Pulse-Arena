@@ -6,10 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { GlassPanel } from "@/components/ui/glass-panel";
 import { MatchCard } from "@/components/match/match-card";
-import { useAllMatches, useSports } from "@/hooks/use-streamed";
+import { useAllMatches, useSports } from "@/hooks/use-ppv";
 import { useFavoritesStore } from "@/store/favorites-store";
 import { useRemindersStore } from "@/store/reminders-store";
-import { formatMatchDate } from "@/lib/streamed/selectors";
+import { formatMatchDate } from "@/lib/ppv/selectors";
 
 export function FavoritesView() {
   const { data: matches = [] } = useAllMatches();

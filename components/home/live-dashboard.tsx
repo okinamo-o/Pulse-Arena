@@ -5,8 +5,8 @@ import { MatchCard } from "@/components/match/match-card";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Badge } from "@/components/ui/badge";
 import { ErrorState } from "@/components/system/error-state";
-import { useSports, useTodayMatches } from "@/hooks/use-streamed";
-import { formatSportName, getMatchStatus, sortByHeat } from "@/lib/streamed/selectors";
+import { useSports, useTodayMatches } from "@/hooks/use-ppv";
+import { formatSportName, getMatchStatus, sortByHeat } from "@/lib/ppv/selectors";
 
 export function LiveDashboard() {
   const { data: allMatches = [], isLoading: matchesLoading, isError: matchesError, refetch: refetchMatches } = useTodayMatches();

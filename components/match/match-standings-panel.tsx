@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { StandingsRow } from "@/lib/streamed/types";
+import { StandingsRow } from "@/lib/ppv/types";
 import { GlassPanel } from "@/components/ui/glass-panel";
 
 export function MatchStandingsPanel({ standings }: { standings: StandingsRow[] }) {

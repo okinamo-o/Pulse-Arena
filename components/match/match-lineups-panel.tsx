@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Lineup } from "@/lib/streamed/types";
+import { Lineup } from "@/lib/ppv/types";
 import { GlassPanel } from "@/components/ui/glass-panel";
 import { User, Users } from "lucide-react";
 

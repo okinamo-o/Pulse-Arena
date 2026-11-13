@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     default: "Pulse Arena - Live Sports Streaming Discovery",
     template: "%s - Pulse Arena"
   },
-  description: "A premium live sports streaming discovery platform powered by the Streamed public API.",
+  description: "A premium live sports streaming discovery platform powered by PPV.st.",
   applicationName: "Pulse Arena",
   keywords: ["sports streaming", "live sports", "football streams", "basketball streams", "match discovery"],
   authors: [{ name: "Pulse Arena" }],

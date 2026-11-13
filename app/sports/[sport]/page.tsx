@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { SportDetail } from "@/components/system/sport-detail";
-import { getMatchesBySport, getPopularMatchesBySport, getSports } from "@/lib/streamed/client";
-import { formatSportName } from "@/lib/streamed/selectors";
+import { getMatchesBySport, getPopularMatchesBySport, getSports } from "@/lib/ppv/client";
+import { formatSportName } from "@/lib/ppv/selectors";
 
 export const revalidate = 60;
 

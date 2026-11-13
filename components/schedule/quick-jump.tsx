@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { Sunrise, Sun, Sunset, Moon } from "lucide-react";
-import { TIME_BLOCKS, type TimeBlock } from "@/lib/streamed/schedule";
+import { TIME_BLOCKS, type TimeBlock } from "@/lib/ppv/schedule";
 import { cn } from "@/lib/utils/cn";
 
 interface QuickJumpProps {

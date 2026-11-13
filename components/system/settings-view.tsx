@@ -3,7 +3,7 @@
 import * as React from "react";
 import { SlidersHorizontal, Trash2 } from "lucide-react";
 import { usePreferencesStore } from "@/store/preferences-store";
-import { useSports } from "@/hooks/use-streamed";
+import { useSports } from "@/hooks/use-ppv";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { GlassPanel } from "@/components/ui/glass-panel";

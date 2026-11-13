@@ -3,10 +3,10 @@
 import * as React from "react";
 import { Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { StreamedMatch } from "@/lib/streamed/types";
+import type { SportMatch } from "@/lib/ppv/types";
 import { useFavoritesStore } from "@/store/favorites-store";
 
-export function FavoriteButton({ match, compact = false }: { match: StreamedMatch; compact?: boolean }) {
+export function FavoriteButton({ match, compact = false }: { match: SportMatch; compact?: boolean }) {
   const isFavorite = useFavoritesStore((state) => state.isMatchFavorite(match.id));
   const toggleMatch = useFavoritesStore((state) => state.toggleMatch);
 

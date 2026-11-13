@@ -4,7 +4,7 @@ import * as React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Goal, Square, ArrowRight, ArrowLeft, Activity } from "lucide-react";
 import { GlassPanel } from "@/components/ui/glass-panel";
-import { ComprehensiveMatchData, MatchEvent } from "@/lib/streamed/types";
+import { ComprehensiveMatchData, MatchEvent } from "@/lib/ppv/types";
 import { motion } from "framer-motion";
 import { CountdownChip } from "@/components/match/countdown-chip";
 
@@ -17,7 +17,7 @@ interface StreamTelemetryProps {
 export function StreamTelemetry({ homeTeam, awayTeam, matchDate }: StreamTelemetryProps) {
   // Use React Query to fetch the telemetry data
   const { data, isLoading, isError } = useQuery<ComprehensiveMatchData>({
-    queryKey: ["streamed", "telemetry", homeTeam, awayTeam],
+    queryKey: ["ppv", "telemetry", homeTeam, awayTeam],
     queryFn: async () => {
       if (!homeTeam || !awayTeam) return [];
       const res = await fetch(`/api/stats?home=${encodeURIComponent(homeTeam)}&away=${encodeURIComponent(awayTeam)}`);

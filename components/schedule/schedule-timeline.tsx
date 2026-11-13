@@ -1,11 +1,11 @@
 "use client";
 
 import * as React from "react";
-import { HourGroup, TIME_BLOCKS, type TimeBlock } from "@/lib/streamed/schedule";
+import { HourGroup, TIME_BLOCKS, type TimeBlock } from "@/lib/ppv/schedule";
 import { ScheduleCard } from "@/components/schedule/schedule-card";
 import { useFavoritesStore } from "@/store/favorites-store";
-import { getMatchParticipants } from "@/lib/streamed/selectors";
-import type { StreamedMatch } from "@/lib/streamed/types";
+import { getMatchParticipants } from "@/lib/ppv/selectors";
+import type { SportMatch } from "@/lib/ppv/types";
 
 interface ScheduleTimelineProps {
   groups: HourGroup[];
@@ -18,7 +18,7 @@ export function ScheduleTimeline({ groups, now }: ScheduleTimelineProps) {
 
   // Sorting matches to place favorites (teams or specific matches) first
   const getSortedMatches = React.useCallback(
-    (matches: StreamedMatch[]) => {
+    (matches: SportMatch[]) => {
       return [...matches].sort((a, b) => {
         const aParticipants = getMatchParticipants(a);
         const bParticipants = getMatchParticipants(b);

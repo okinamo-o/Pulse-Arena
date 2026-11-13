@@ -3,7 +3,7 @@ import { SportsDirectory } from "@/components/system/sports-directory";
 
 export const metadata: Metadata = {
   title: "Sports",
-  description: "Browse every sport available from the Streamed public API."
+  description: "Browse every live sport and category available on PPV.st."
 };
 
 export default function SportsPage() {

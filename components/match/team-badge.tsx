@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { badgeImageUrl } from "@/lib/streamed/client";
-import { getTeamInitials } from "@/lib/streamed/selectors";
+import { badgeImageUrl } from "@/lib/ppv/client";
+import { getTeamInitials } from "@/lib/ppv/selectors";
 import { cn } from "@/lib/utils/cn";
 
 interface TeamBadgeProps {

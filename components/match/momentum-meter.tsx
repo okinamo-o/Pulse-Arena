@@ -2,11 +2,11 @@
 
 import { motion } from "framer-motion";
 import { Zap } from "lucide-react";
-import { getHeatScore } from "@/lib/streamed/selectors";
-import type { StreamedMatch } from "@/lib/streamed/types";
+import { getHeatScore } from "@/lib/ppv/selectors";
+import type { SportMatch } from "@/lib/ppv/types";
 import { cn } from "@/lib/utils/cn";
 
-export function MomentumMeter({ match, compact = false }: { match: StreamedMatch; compact?: boolean }) {
+export function MomentumMeter({ match, compact = false }: { match: SportMatch; compact?: boolean }) {
   const score = getHeatScore(match);
   const label = score > 80 ? "Peak" : score > 62 ? "Hot" : score > 42 ? "Building" : "Calm";
 

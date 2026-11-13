@@ -6,8 +6,8 @@ import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useAllMatches } from "@/hooks/use-streamed";
-import { formatSportName, sortByHeat } from "@/lib/streamed/selectors";
+import { useAllMatches } from "@/hooks/use-ppv";
+import { formatSportName, sortByHeat } from "@/lib/ppv/selectors";
 import { usePreferencesStore } from "@/store/preferences-store";
 
 interface SearchCommandProps {
@@ -105,7 +105,9 @@ export function SearchCommand({ children }: SearchCommandProps) {
                 >
                   <div className="min-w-0">
                     <p className="truncate text-sm font-bold text-white">{match.title}</p>
-                    <p className="mt-1 text-xs text-white/70">{new Date(match.date).toLocaleString()}</p>
+                    <p className="mt-1 text-xs text-white/70">
+                      {match.alwaysLive || match.date <= 0 ? "24/7 Live Channel" : new Date(match.date).toLocaleString()}
+                    </p>
                   </div>
                   <div className="flex items-center gap-2">
                     <Badge variant={match.popular ? "hot" : "cyan"}>{formatSportName(match.category)}</Badge>

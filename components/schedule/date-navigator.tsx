@@ -2,14 +2,14 @@
 
 import * as React from "react";
 import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
-import { DateInfo, toLocalDateString, getScheduleDensity } from "@/lib/streamed/schedule";
-import type { StreamedMatch } from "@/lib/streamed/types";
+import { DateInfo, toLocalDateString, getScheduleDensity } from "@/lib/ppv/schedule";
+import type { SportMatch } from "@/lib/ppv/types";
 import { cn } from "@/lib/utils/cn";
 
 interface DateNavigatorProps {
   selectedDate: string; // YYYY-MM-DD
   onSelectDate: (dateString: string) => void;
-  matches: StreamedMatch[];
+  matches: SportMatch[];
   days: DateInfo[];
   mounted: boolean;
 }

@@ -1,10 +1,10 @@
 "use client";
 
 import { Activity } from "lucide-react";
-import type { StreamedMatch } from "@/lib/streamed/types";
-import { getHeatScore } from "@/lib/streamed/selectors";
+import type { SportMatch } from "@/lib/ppv/types";
+import { getHeatScore } from "@/lib/ppv/selectors";
 
-export function MatchRadar({ match }: { match: StreamedMatch }) {
+export function MatchRadar({ match }: { match: SportMatch }) {
   const heat = getHeatScore(match);
   const blips = Array.from({ length: Math.max(4, Math.ceil(heat / 14)) });
 

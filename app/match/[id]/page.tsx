@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { MatchDetailView } from "@/components/match/match-detail-view";
-import { getMatchById, getTodayMatches } from "@/lib/streamed/client";
-import { dedupeMatches, sortByHeat } from "@/lib/streamed/selectors";
+import { getMatchById, getTodayMatches } from "@/lib/ppv/client";
+import { dedupeMatches, sortByHeat } from "@/lib/ppv/selectors";
 
 export const revalidate = 30;
 

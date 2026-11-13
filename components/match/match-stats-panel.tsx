@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { MatchStats } from "@/lib/streamed/types";
+import { MatchStats } from "@/lib/ppv/types";
 import { GlassPanel } from "@/components/ui/glass-panel";
 
 export function MatchStatsPanel({ stats }: { stats: MatchStats }) {

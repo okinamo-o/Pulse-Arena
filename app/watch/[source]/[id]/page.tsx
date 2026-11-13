@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { StreamView } from "@/components/stream/stream-view";
-import { sortByHeat } from "@/lib/streamed/selectors";
-import { getMatchById, getStreams, getTodayMatches } from "@/lib/streamed/client";
+import { sortByHeat } from "@/lib/ppv/selectors";
+import { getMatchById, getStreams, getTodayMatches } from "@/lib/ppv/client";
 
 export const revalidate = 20;
 

@@ -9,7 +9,7 @@ import { LiveTicker } from "@/components/layout/live-ticker";
 import { Footer } from "@/components/layout/footer";
 import { DegradedModeBanner } from "@/components/system/degraded-banner";
 import { FeedbackWidget } from "@/components/system/feedback-widget";
-import { useTodayMatches } from "@/hooks/use-streamed";
+import { useTodayMatches } from "@/hooks/use-ppv";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
