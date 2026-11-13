@@ -121,15 +121,8 @@ export function getTeamInitials(name?: string) {
 const AT_SEPARATOR = /\s+(?:at|@)\s+/i;
 const VS_SEPARATOR = /\s+vs\.?\s+|\s+-\s+/i;
 
-export function getMatchParticipants(match: SportMatch) {
-  if (match.teams?.home?.name || match.teams?.away?.name) {
-    return {
-      home: match.teams?.home?.name ?? match.title,
-      away: match.teams?.away?.name ?? "",
-    };
-  }
-
-  const title = match.title.trim();
+export function parseTitleParticipants(rawTitle: string): { home: string; away: string } {
+  const title = rawTitle.trim();
   if (AT_SEPARATOR.test(title)) {
     const [away = "", home = ""] = title.split(AT_SEPARATOR);
     return {
@@ -150,6 +143,17 @@ export function getMatchParticipants(match: SportMatch) {
     home: title,
     away: "",
   };
+}
+
+export function getMatchParticipants(match: SportMatch) {
+  if (match.teams?.home?.name || match.teams?.away?.name) {
+    return {
+      home: match.teams?.home?.name ?? match.title,
+      away: match.teams?.away?.name ?? "",
+    };
+  }
+
+  return parseTitleParticipants(match.title);
 }
 
 export function findMatchBySource(matches: SportMatch[], source: string, id: string) {

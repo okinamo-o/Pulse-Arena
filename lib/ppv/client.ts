@@ -11,6 +11,7 @@ import type {
   SportStream,
 } from "@/lib/ppv/types";
 import { getMatchStatus } from "@/lib/ppv/selectors";
+import { resolveMatchVisuals } from "@/lib/ppv/team-visuals";
 
 const DEFAULT_PPV_API_ORIGIN = "https://api.ppv.st";
 
@@ -259,6 +260,15 @@ function normalizeRawStream(raw: PpvRawStream, group: PpvRawCategoryGroup): Spor
     ? viewers >= 15 || embeddedStreams.length >= 3
     : viewers >= 5 || embeddedStreams.length >= 2 || isMajorLeagueTag(raw.tag);
 
+  const visuals = resolveMatchVisuals({
+    title: raw.name,
+    category: categoryId,
+    league: raw.tag,
+    alwaysLive,
+    serverTeams: raw.resolved_teams,
+    serverCountry: raw.resolved_country,
+  });
+
   return {
     id: String(raw.id),
     uriName: raw.uri_name ?? raw.uri,
@@ -274,6 +284,9 @@ function normalizeRawStream(raw: PpvRawStream, group: PpvRawCategoryGroup): Spor
     locale: raw.locale,
     viewers,
     popular,
+    countryCode: visuals.countryCode,
+    countryName: visuals.countryName,
+    teams: visuals.teams,
     sources,
     embeddedStreams,
   };
@@ -302,6 +315,15 @@ export const getPpvDirectory = cache(async (): Promise<PpvDirectory> => {
 
   if (!payload || !Array.isArray(payload.streams)) {
     throw new Error("Invalid response payload from PPV.st API");
+  }
+
+  if (getMode() === "server") {
+    try {
+      const { enrichPpvGroupsOnServer } = await import("@/lib/ppv/team-enrichment");
+      await enrichPpvGroupsOnServer(payload.streams);
+    } catch {
+      // Static catalog resolution remains active even if dynamic enrichment fails
+    }
   }
 
   const sportsMap = new Map<string, SportCategory>();

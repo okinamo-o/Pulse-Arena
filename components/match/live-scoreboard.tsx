@@ -11,11 +11,30 @@ interface LiveScoreboardProps {
   awayTeam?: string;
   homeBadge?: string;
   awayBadge?: string;
+  homeCountryCode?: string;
+  homeCountryName?: string;
+  homeIsNational?: boolean;
+  awayCountryCode?: string;
+  awayCountryName?: string;
+  awayIsNational?: boolean;
   matchDate: number;
   category?: string;
 }
 
-export function LiveScoreboard({ homeTeam, awayTeam, homeBadge, awayBadge, matchDate, category = "football" }: LiveScoreboardProps) {
+export function LiveScoreboard({
+  homeTeam,
+  awayTeam,
+  homeBadge,
+  awayBadge,
+  homeCountryCode,
+  homeCountryName,
+  homeIsNational,
+  awayCountryCode,
+  awayCountryName,
+  awayIsNational,
+  matchDate,
+  category = "football",
+}: LiveScoreboardProps) {
   const { data } = useQuery<ComprehensiveMatchData>({
     queryKey: ["ppv", "telemetry", homeTeam, awayTeam, category],
     queryFn: async () => {
@@ -47,7 +66,15 @@ export function LiveScoreboard({ homeTeam, awayTeam, homeBadge, awayBadge, match
       </p>
       <div className="flex items-center justify-center gap-12 w-full max-w-2xl">
         <div className="flex flex-col items-center gap-4">
-          <TeamBadge name={homeTeam} badge={homeBadge} size="xl" className="shadow-panel bg-white/5" />
+          <TeamBadge
+            name={homeTeam}
+            badge={homeBadge}
+            countryCode={homeCountryCode}
+            countryName={homeCountryName}
+            isNational={homeIsNational}
+            size="xl"
+            className="shadow-panel bg-white/5"
+          />
           <span className="font-bold text-lg text-white">{isTennis ? "Player 1" : homeTeam}</span>
           {isTennis && <span className="text-xs text-white/50">{homeTeam}</span>}
         </div>
@@ -75,7 +102,15 @@ export function LiveScoreboard({ homeTeam, awayTeam, homeBadge, awayBadge, match
         </div>
 
         <div className="flex flex-col items-center gap-4">
-          <TeamBadge name={awayTeam} badge={awayBadge} size="xl" className="shadow-panel bg-white/5" />
+          <TeamBadge
+            name={awayTeam}
+            badge={awayBadge}
+            countryCode={awayCountryCode}
+            countryName={awayCountryName}
+            isNational={awayIsNational}
+            size="xl"
+            className="shadow-panel bg-white/5"
+          />
           <span className="font-bold text-lg text-white">{isTennis ? "Player 2" : awayTeam}</span>
           {isTennis && <span className="text-xs text-white/50">{awayTeam}</span>}
         </div>

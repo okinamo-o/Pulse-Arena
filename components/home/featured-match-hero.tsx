@@ -6,6 +6,7 @@ import { ArrowRight, Radio, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CountdownChip } from "@/components/match/countdown-chip";
+import { CountryFlag } from "@/components/match/country-flag";
 import { MomentumMeter } from "@/components/match/momentum-meter";
 import { TeamBadge } from "@/components/match/team-badge";
 import { usePreferencesStore } from "@/store/preferences-store";
@@ -42,7 +43,10 @@ export function FeaturedMatchHero({ match }: FeaturedMatchHeroProps) {
         >
           <div className="mb-5 flex flex-wrap gap-2">
             <CountdownChip date={match.date} category={match.category} alwaysLive={match.alwaysLive} endsAt={match.endsAt} />
-            <Badge variant="cyan">{formatSportName(match.category)}</Badge>
+            <Badge variant="cyan" className="gap-1.5">
+              {match.countryCode ? <CountryFlag code={match.countryCode} name={match.countryName} size="xs" /> : null}
+              {formatSportName(match.category)}
+            </Badge>
             {match.popular ? <Badge variant="hot">Heat index rising</Badge> : null}
           </div>
           <h1 className="max-w-5xl text-balance font-display text-4xl font-black uppercase leading-[0.9] text-white sm:text-5xl md:text-7xl xl:text-8xl">
@@ -87,7 +91,15 @@ export function FeaturedMatchHero({ match }: FeaturedMatchHeroProps) {
             </div>
             <div className="my-10 flex items-center justify-center gap-2 sm:gap-5">
               <motion.div animate={reducedMotion ? {} : { y: [0, -8, 0] }} transition={{ duration: 5, repeat: Infinity }}>
-                <TeamBadge name={participants.home} badge={match.teams?.home?.badge} className="h-20 w-20 text-lg sm:h-28 sm:w-28 sm:text-2xl" />
+                <TeamBadge
+                  name={participants.home}
+                  badge={match.teams?.home?.badge}
+                  countryCode={match.teams?.home?.countryCode}
+                  countryName={match.teams?.home?.countryName}
+                  isNational={match.teams?.home?.isNational}
+                  size="xl"
+                  className="h-20 w-20 text-lg sm:h-28 sm:w-28 sm:text-2xl"
+                />
               </motion.div>
               {participants.away ? (
                 <>
@@ -95,7 +107,15 @@ export function FeaturedMatchHero({ match }: FeaturedMatchHeroProps) {
                     VS
                   </div>
                   <motion.div animate={reducedMotion ? {} : { y: [0, 8, 0] }} transition={{ duration: 5.5, repeat: Infinity }}>
-                    <TeamBadge name={participants.away} badge={match.teams?.away?.badge} className="h-20 w-20 text-lg sm:h-28 sm:w-28 sm:text-2xl" />
+                    <TeamBadge
+                      name={participants.away}
+                      badge={match.teams?.away?.badge}
+                      countryCode={match.teams?.away?.countryCode}
+                      countryName={match.teams?.away?.countryName}
+                      isNational={match.teams?.away?.isNational}
+                      size="xl"
+                      className="h-20 w-20 text-lg sm:h-28 sm:w-28 sm:text-2xl"
+                    />
                   </motion.div>
                 </>
               ) : null}

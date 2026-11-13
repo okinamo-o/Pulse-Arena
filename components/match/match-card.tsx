@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowUpRight, Radio } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { CountdownChip } from "@/components/match/countdown-chip";
+import { CountryFlag } from "@/components/match/country-flag";
 import { FavoriteButton } from "@/components/match/favorite-button";
 import { ReminderButton } from "@/components/match/reminder-button";
 import { TeamBadge } from "@/components/match/team-badge";
@@ -33,12 +34,22 @@ export const MatchCard = React.memo(function MatchCard({ match, variant = "defau
           className
         )}
       >
-        <TeamBadge name={participants.home} badge={match.teams?.home?.badge} size="sm" />
+        <TeamBadge
+          name={participants.home}
+          badge={match.teams?.home?.badge}
+          countryCode={match.teams?.home?.countryCode}
+          countryName={match.teams?.home?.countryName}
+          isNational={match.teams?.home?.isNational}
+          size="sm"
+        />
         <div className="min-w-0">
           <p className="truncate text-sm font-black uppercase text-white">{match.title}</p>
           <div className="mt-2 flex flex-wrap gap-2">
             <CountdownChip date={match.date} category={match.category} alwaysLive={match.alwaysLive} endsAt={match.endsAt} />
-            <Badge variant="muted">{formatSportName(match.category)}</Badge>
+            <Badge variant="muted" className="gap-1.5">
+              {match.countryCode ? <CountryFlag code={match.countryCode} name={match.countryName} size="xs" /> : null}
+              {formatSportName(match.category)}
+            </Badge>
           </div>
         </div>
         <ArrowUpRight className="h-5 w-5 text-white/50 transition group-hover:text-signal-lime" aria-hidden="true" />
@@ -58,7 +69,10 @@ export const MatchCard = React.memo(function MatchCard({ match, variant = "defau
         <div className="flex items-start justify-between gap-3">
           <div className="flex flex-wrap gap-2">
             <CountdownChip date={match.date} category={match.category} alwaysLive={match.alwaysLive} endsAt={match.endsAt} />
-            <Badge variant={match.popular ? "hot" : "cyan"}>{formatSportName(match.category)}</Badge>
+            <Badge variant={match.popular ? "hot" : "cyan"} className="gap-1.5">
+              {match.countryCode ? <CountryFlag code={match.countryCode} name={match.countryName} size="xs" /> : null}
+              {formatSportName(match.category)}
+            </Badge>
           </div>
           <div className="flex gap-2">
             {!match.alwaysLive && match.date > 0 ? <ReminderButton match={match} compact /> : null}
@@ -67,13 +81,27 @@ export const MatchCard = React.memo(function MatchCard({ match, variant = "defau
         </div>
         <Link href={`/match/${encodeURIComponent(match.id)}`} className="mt-7 block">
           <div className="flex items-center justify-center gap-4">
-            <TeamBadge name={participants.home} badge={match.teams?.home?.badge} size="lg" />
+            <TeamBadge
+              name={participants.home}
+              badge={match.teams?.home?.badge}
+              countryCode={match.teams?.home?.countryCode}
+              countryName={match.teams?.home?.countryName}
+              isNational={match.teams?.home?.isNational}
+              size="lg"
+            />
             {participants.away ? (
               <>
                 <div className="rounded-full border border-white/10 bg-black/40 px-3 py-1.5 font-mono text-xs font-black text-white/80">
                   VS
                 </div>
-                <TeamBadge name={participants.away} badge={match.teams?.away?.badge} size="lg" />
+                <TeamBadge
+                  name={participants.away}
+                  badge={match.teams?.away?.badge}
+                  countryCode={match.teams?.away?.countryCode}
+                  countryName={match.teams?.away?.countryName}
+                  isNational={match.teams?.away?.isNational}
+                  size="lg"
+                />
               </>
             ) : null}
           </div>

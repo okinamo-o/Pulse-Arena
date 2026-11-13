@@ -1,4 +1,6 @@
 import { PPV_ORIGIN, PPV_SITE_ORIGIN } from "@/lib/ppv/client";
+import { enrichPpvGroupsOnServer } from "@/lib/ppv/team-enrichment";
+import type { PpvRawStreamsResponse } from "@/lib/ppv/types";
 import * as Sentry from "@sentry/nextjs";
 
 export const dynamic = "force-dynamic";
@@ -58,6 +60,14 @@ export async function GET(_request: Request, context: { params: Promise<{ path: 
         { error: "Upstream returned invalid JSON", code: "INVALID_JSON" },
         { status: 502, headers: { "cache-control": "no-store" } }
       );
+    }
+
+    if (path.length === 1 && path[0] === ALLOWED_ROOT && data && typeof data === "object" && Array.isArray((data as PpvRawStreamsResponse).streams)) {
+      try {
+        await enrichPpvGroupsOnServer((data as PpvRawStreamsResponse).streams!);
+      } catch {
+        // Return un-enriched PPV response cleanly if enrichment throws
+      }
     }
 
     return Response.json(data, {

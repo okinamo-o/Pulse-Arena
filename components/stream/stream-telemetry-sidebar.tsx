@@ -42,7 +42,14 @@ export function StreamTelemetrySidebar({ match }: { match?: SportMatch }) {
       <div className="flex flex-col items-center mb-5">
         <div className="flex items-center justify-between w-full">
           <div className="flex flex-col items-center gap-1.5 w-[35%]">
-            <TeamBadge name={homeTeam || ""} badge={match.teams?.home?.badge} size="md" />
+            <TeamBadge
+              name={homeTeam || ""}
+              badge={match.teams?.home?.badge}
+              countryCode={match.teams?.home?.countryCode}
+              countryName={match.teams?.home?.countryName}
+              isNational={match.teams?.home?.isNational}
+              size="md"
+            />
             <span className="font-bold text-[0.6rem] text-center uppercase text-white/70 line-clamp-2">{homeTeam}</span>
           </div>
           
@@ -57,7 +64,14 @@ export function StreamTelemetrySidebar({ match }: { match?: SportMatch }) {
           </div>
 
           <div className="flex flex-col items-center gap-1.5 w-[35%]">
-            <TeamBadge name={awayTeam || ""} badge={match.teams?.away?.badge} size="md" />
+            <TeamBadge
+              name={awayTeam || ""}
+              badge={match.teams?.away?.badge}
+              countryCode={match.teams?.away?.countryCode}
+              countryName={match.teams?.away?.countryName}
+              isNational={match.teams?.away?.isNational}
+              size="md"
+            />
             <span className="font-bold text-[0.6rem] text-center uppercase text-white/70 line-clamp-2">{awayTeam}</span>
           </div>
         </div>

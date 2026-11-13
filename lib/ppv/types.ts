@@ -8,6 +8,9 @@ export interface SportCategory {
 export interface SportTeam {
   name: string;
   badge?: string;
+  countryCode?: string;
+  countryName?: string;
+  isNational?: boolean;
 }
 
 export interface SportMatchTeams {
@@ -47,6 +50,8 @@ export interface SportMatch {
   locale?: string;
   viewers?: number;
   popular: boolean;
+  countryCode?: string;
+  countryName?: string;
   teams?: SportMatchTeams;
   sources: SportMatchSource[];
   embeddedStreams?: SportStream[];
@@ -270,6 +275,11 @@ export interface PpvRawStream {
   substreams?: PpvRawSubstream[];
   sources?: PpvRawDetailSource[];
   viewers?: string | number;
+  resolved_teams?: SportMatchTeams;
+  resolved_country?: {
+    code: string;
+    name: string;
+  };
 }
 
 export interface PpvRawCategoryGroup {

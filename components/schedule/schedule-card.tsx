@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowUpRight, CalendarRange, ExternalLink, Radio, Download } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { CountryFlag } from "@/components/match/country-flag";
 import { TeamBadge } from "@/components/match/team-badge";
 import { FavoriteButton } from "@/components/match/favorite-button";
 import { ReminderButton } from "@/components/match/reminder-button";
@@ -101,7 +102,8 @@ export function ScheduleCard({ match, className, now: externalNow }: ScheduleCar
               {status === "live" && <Radio className="h-3 w-3 animate-pulse-live" />}
               {status === "live" ? "LIVE NOW" : status === "upcoming" ? "UPCOMING" : "FINISHED"}
             </Badge>
-            <span className="text-[0.68rem] font-bold uppercase tracking-wider text-signal-cyan/90">
+            <span className="inline-flex items-center gap-1.5 text-[0.68rem] font-bold uppercase tracking-wider text-signal-cyan/90">
+              {match.countryCode ? <CountryFlag code={match.countryCode} name={match.countryName} size="xs" /> : null}
               {formatSportName(match.category)}
             </span>
           </div>
@@ -114,7 +116,14 @@ export function ScheduleCard({ match, className, now: externalNow }: ScheduleCar
               <span className="hidden truncate text-sm font-bold text-white/90 sm:inline-block">
                 {participants.home}
               </span>
-              <TeamBadge name={participants.home} badge={match.teams?.home?.badge} size="sm" />
+              <TeamBadge
+                name={participants.home}
+                badge={match.teams?.home?.badge}
+                countryCode={match.teams?.home?.countryCode}
+                countryName={match.teams?.home?.countryName}
+                isNational={match.teams?.home?.isNational}
+                size="sm"
+              />
             </div>
 
             {participants.away ? (
@@ -124,7 +133,14 @@ export function ScheduleCard({ match, className, now: externalNow }: ScheduleCar
                 </span>
 
                 <div className="flex items-center gap-2 max-w-[40%] text-left">
-                  <TeamBadge name={participants.away} badge={match.teams?.away?.badge} size="sm" />
+                  <TeamBadge
+                    name={participants.away}
+                    badge={match.teams?.away?.badge}
+                    countryCode={match.teams?.away?.countryCode}
+                    countryName={match.teams?.away?.countryName}
+                    isNational={match.teams?.away?.isNational}
+                    size="sm"
+                  />
                   <span className="hidden truncate text-sm font-bold text-white/90 sm:inline-block">
                     {participants.away}
                   </span>

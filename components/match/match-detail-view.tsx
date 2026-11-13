@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { GlassPanel } from "@/components/ui/glass-panel";
 import { SectionHeader } from "@/components/ui/section-header";
 import { CountdownChip } from "@/components/match/countdown-chip";
+import { CountryFlag } from "@/components/match/country-flag";
 import { FavoriteButton } from "@/components/match/favorite-button";
 import { MomentumMeter } from "@/components/match/momentum-meter";
 import { ReminderButton } from "@/components/match/reminder-button";
@@ -36,18 +37,35 @@ export function MatchDetailView({ match, related }: MatchDetailViewProps) {
             <div>
               <div className="mb-5 flex flex-wrap gap-2">
                 <CountdownChip date={match.date} category={match.category} alwaysLive={match.alwaysLive} endsAt={match.endsAt} />
-                <Badge variant="cyan">{formatSportName(match.category)}</Badge>
+                <Badge variant="cyan" className="gap-1.5">
+                  {match.countryCode ? <CountryFlag code={match.countryCode} name={match.countryName} size="xs" /> : null}
+                  {formatSportName(match.category)}
+                </Badge>
                 {match.league && match.league !== "24/7 channel" ? <Badge variant="muted">{match.league}</Badge> : null}
                 {match.popular ? <Badge variant="hot">Trending</Badge> : null}
               </div>
               <div className="flex items-center gap-4 sm:gap-6">
-                <TeamBadge name={participants.home} badge={match.teams?.home?.badge} size="xl" />
+                <TeamBadge
+                  name={participants.home}
+                  badge={match.teams?.home?.badge}
+                  countryCode={match.teams?.home?.countryCode}
+                  countryName={match.teams?.home?.countryName}
+                  isNational={match.teams?.home?.isNational}
+                  size="xl"
+                />
                 {participants.away ? (
                   <>
                     <div className="rounded-full border border-white/10 bg-black/30 px-4 py-2 font-mono text-sm font-black text-white/56">
                       VS
                     </div>
-                    <TeamBadge name={participants.away} badge={match.teams?.away?.badge} size="xl" />
+                    <TeamBadge
+                      name={participants.away}
+                      badge={match.teams?.away?.badge}
+                      countryCode={match.teams?.away?.countryCode}
+                      countryName={match.teams?.away?.countryName}
+                      isNational={match.teams?.away?.isNational}
+                      size="xl"
+                    />
                   </>
                 ) : null}
               </div>
@@ -94,11 +112,17 @@ export function MatchDetailView({ match, related }: MatchDetailViewProps) {
       </section>
 
       <section className="container-page mt-8">
-        <LiveScoreboard 
-          homeTeam={participants.home} 
-          awayTeam={participants.away} 
+        <LiveScoreboard
+          homeTeam={participants.home}
+          awayTeam={participants.away}
           homeBadge={match.teams?.home?.badge}
           awayBadge={match.teams?.away?.badge}
+          homeCountryCode={match.teams?.home?.countryCode}
+          homeCountryName={match.teams?.home?.countryName}
+          homeIsNational={match.teams?.home?.isNational}
+          awayCountryCode={match.teams?.away?.countryCode}
+          awayCountryName={match.teams?.away?.countryName}
+          awayIsNational={match.teams?.away?.isNational}
           matchDate={match.date}
           category={match.category}
         />
